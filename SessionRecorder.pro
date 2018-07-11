@@ -17,28 +17,31 @@ DEFINES += QT_DEPRECATED_WARNINGS
 macx {
      message(Platform: Mac OS X)
 
-     BOOSTPATH = /usr/local
-     INCLUDEPATH += $$BOOSTPATH/include
-     LIBS += -L$$BOOSTPATH/lib
-
      OPENCVDIR = /opt/local
      INCLUDEPATH += $$OPENCVDIR/include
      LIBS += -L$$OPENCVDIR/lib
-     LIBS += -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_videoio #-lssh2
+     LIBS += -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_videoio
+
+     BOOSTPATH = /usr/local
+     INCLUDEPATH += $$BOOSTPATH/include
+     LIBS += -L$$BOOSTPATH/lib
 }
 
 win32 {
-    # TODO un-tested yet
+    message(Platform: Win32)
 
-    #message(Platform: Win32)
-    #OPENCVDIR = C:\Users\localadmin_jmakoske\opencv\build
-    #BOOSTDIR  = C:\Users\localadmin_jmakoske\boost_1_58_0
+    OPENCVDIR = C:\local\opencv\build
+    INCLUDEPATH += $$OPENCVDIR\include
+    LIBS += -L$$OPENCVDIR\x64\vc14\lib
+    LIBS += -lopencv_core2413d -lopencv_highgui2413d -lopencv_imgproc2413d
 
-    #INCLUDEPATH += $$OPENCVDIR\include
-    #INCLUDEPATH += $$BOOSTDIR
+    #LIBS += -L$$OPENCVDIR\x64\vc14\bin
+    #INCLUDEPATH += -L$$OPENCVDIR\x64\vc14\bin
+    #INCLUDEPATH += -L$$OPENCVDIR\x64\vc14\lib
 
-    #LIBS += -L$$OPENCVDIR\x86\mingw\bin
-    #LIBS += -lopencv_core2411 -lopencv_highgui2411 -lopencv_imgproc2411
+    BOOSTDIR  = C:\local\boost_1_67_0_b1_rc2
+    INCLUDEPATH += $$BOOSTDIR
+    LIBS += -L$$BOOSTDIR\lib64-msvc-14.0
 }
 
 SOURCES += \
