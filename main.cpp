@@ -113,11 +113,14 @@ int main(int argc, char *argv[])
     cam = new CameraThread(0, "1280x720");
 
     QObject::connect(&recorder, SIGNAL(outputDirectory(const QString&)), cam, SLOT(setOutputDirectory(const QString&)));
+
     QObject::connect(&recorder, SIGNAL(stateChanged(QMediaRecorder::State)), cam, SLOT(onStateChanged(QMediaRecorder::State)));
     QObject::connect(&recorder, SIGNAL(cameraOutput(QString)), cam, SLOT(setCameraOutput(QString)));
     QObject::connect(&recorder, SIGNAL(cameraFramerate(QString)), cam, SLOT(setCameraFramerate(QString)));
     QObject::connect(&recorder, SIGNAL(cameraPowerChanged(int, int)), cam, SLOT(setCameraPower(int, int)));
     QObject::connect(&recorder, SIGNAL(sendSessionDetails(QString,QString,QString,QString)), cam, SLOT(updateSessionConditions(QString,QString,QString,QString)));
+
+    QObject::connect(&recorder, SIGNAL(changeSessionConditionSignal(int,QString)), cam, SLOT(updateSessionConditions(int,QString)));
 
     QObject::connect(cam, SIGNAL(qimgReady(const QImage)), &recorder, SLOT(processQImage(const QImage)));
     QObject::connect(cam, SIGNAL(errorMessage(const QString&)), &recorder, SLOT(displayErrorMessage(const QString&)));

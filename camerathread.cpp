@@ -143,6 +143,39 @@ void CameraThread::updateSessionConditions(QString id, QString session, QString 
 }
 
 ///
+/// \brief CameraThread::updateSessionConditions
+///
+/// As stated
+///
+/// \param index
+/// \param value
+///
+void CameraThread::updateSessionConditions(int index, QString value)
+{
+    switch (index) {
+    case 0:
+        winId = value;
+
+        break;
+    case 1:
+        winSession = value;
+
+        break;
+    case 2:
+        winTreatment = value;
+
+        break;
+    case 3:
+        winCondition = value;
+
+        break;
+
+    default:
+        break;
+    }
+}
+
+///
 /// \brief CameraThread::run
 ///
 /// Core thread
@@ -204,12 +237,6 @@ void CameraThread::run() //Q_DECL_OVERRIDE
     stopLoop = false;
     is_active = true;
 
-    // Session-specific information
-    idTag = QString("ID: %1").arg(winId).toStdString().c_str();
-    sessTag = QString("Session: %1").arg(winSession).toStdString().c_str();
-    trtTag = QString("Treatment: %1").arg(winTreatment).toStdString().c_str();
-    condTag = QString("Condition: %1").arg(winCondition).toStdString().c_str();
-
     topRect1 = Point(2, 8);
     topRect2 = Point(180, 8 + (4 * 14));
 
@@ -256,28 +283,28 @@ void CameraThread::run() //Q_DECL_OVERRIDE
                         CV_FILLED);
 
               putText(frame,
-                      idTag,
+                      QString("ID: %1").arg(winId).toStdString().c_str(),
                       topText1,
                       fontType,
                       fontScale,
                       yellowColor);
 
               putText(frame,
-                      sessTag,
+                      QString("Session: %1").arg(winSession).toStdString().c_str(),
                       topText2,
                       fontType,
                       fontScale,
                       yellowColor);
 
               putText(frame,
-                      trtTag,
+                      QString("Treatment: %1").arg(winTreatment).toStdString().c_str(),
                       topText3,
                       fontType,
                       fontScale,
                       yellowColor);
 
               putText(frame,
-                      condTag,
+                      QString("Condition: %1").arg(winCondition).toStdString().c_str(),
                       topText4,
                       fontType,
                       fontScale,
@@ -414,6 +441,10 @@ void CameraThread::resizeAR(Mat &frame, Size osize)
 ///
 void CameraThread::setOutputDirectory(const QString &d)
 {
+#ifdef QT_DEBUG
+            qDebug() << QString("setOutputDirectory %1").arg(outdir);
+#endif
+
     outdir = d+"/";
 }
 
@@ -439,7 +470,7 @@ void CameraThread::onStateChanged(QMediaRecorder::State state)
 
 #ifdef QT_DEBUG
             qDebug() << QString("CameraThread::onStateChanged(): initializing "
-                    "VideoWriter for camera %1").arg(idx);
+                    "VideoWriter for camera %1; Location %2").arg(idx).arg(outdir);
 #endif
 
             video.open(QString(outdir+filename).toStdString(),

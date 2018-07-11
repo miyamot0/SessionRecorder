@@ -82,6 +82,8 @@ public slots:
     void setCameraPower(int, int);
     void updateSessionConditions(QString id, QString session, QString treatment, QString condition);
 
+    void updateSessionConditions(int index, QString value);
+
 public:
     CameraThread(int i);
     CameraThread(int i, QString wxh);
@@ -118,11 +120,6 @@ private:
     QString winSession = "";
     QString winTreatment = "";
     QString winCondition = "";
-
-    const char* idTag;
-    const char* sessTag;
-    const char* trtTag;
-    const char* condTag;
 
     // Hard-coded values
     int winSizeH = 640;
