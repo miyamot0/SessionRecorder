@@ -42,7 +42,7 @@ win32 {
 }
 
 SOURCES += \
-        main.cpp \
+    main.cpp \
     camerathread.cpp \
     avrecorder.cpp \
     qaudiolevel.cpp

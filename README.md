@@ -31,6 +31,20 @@ The Small N Stats Discounting Model Selector uses a number of open source projec
 ------
 No other packages are required. Simply build and run or install and run. However, users must have aquire FFmpeg and have this binary on their PATH to allow the program to mux audio/visual streams together.
 
+### Setup, Mac OSX
+------
+You will can install FFmpeg using Homebrew. This is recommended, as the program will look to /usr/local/bin for FFmpeg. If you do not have Homebrew installed, you can install via the following:
+
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+If you already have Homebrew installed, you can install FFmpeg using the following:
+
+brew install ffmpeg
+
+### Setup, Windows
+------
+TODO
+
 ### Download
 ------
 All downloadable binaries, if/when posted, will be hosted at [Small N Stats](http://www.smallnstats.com).
