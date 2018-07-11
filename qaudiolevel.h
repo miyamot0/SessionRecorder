@@ -97,8 +97,6 @@ class QAudioLevel : public QWidget
     Q_OBJECT
 public:
     explicit QAudioLevel(QWidget *parent = 0);
-
-    // Using [0; 1.0] range
     void setLevel(qreal level);
 
 protected:
