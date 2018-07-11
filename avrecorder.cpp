@@ -199,6 +199,11 @@ AvRecorder::AvRecorder(QWidget *parent) :
     connect(ui->recordButton, SIGNAL(clicked(bool)), this, SLOT(toggleRecord()));
     connect(ui->outputButton, SIGNAL(clicked(bool)), this, SLOT(setOutputLocation()));
 
+    connect(ui->lineEditId, SIGNAL(textChanged(QString)), this, SLOT(changeIdSlot(QString)));
+    connect(ui->lineEditSession, SIGNAL(textChanged(QString)), this, SLOT(changeSessionSlot(QString)));
+    connect(ui->lineEditTx, SIGNAL(textChanged(QString)), this, SLOT(changeTreatmentSlot(QString)));
+    connect(ui->lineEditCond, SIGNAL(textChanged(QString)), this, SLOT(changeConditionSlot(QString)));
+
     defaultDir = QDir::homePath() + "/SessionRecordings";
 
     setWindowFlags(Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
@@ -217,9 +222,41 @@ AvRecorder::AvRecorder(QWidget *parent) :
     settings.endGroup();
     settings.sync();
 
-    outputLocationSet = QDir(dirName).exists();
+    qDebug() << dirName;
+
+    QDir dir(dirName);
+    if (!dir.exists())
+    {
+        if (!dir.mkpath("."))
+        {
+            qWarning() << "WARNING: Failed to create directory" << defaultDir;
+
+            defaultDir = QDir::homePath();
+
+            dirName = defaultDir;
+        }
+
+        outputLocationSet = false;
+    }
+    else
+    {
+        outputLocationSet = true;
+    }
+
+    setOutputLocation();
+    emit outputDirectory(dirName);
+
+    combineStreamProcess = new QProcess(this);
+    connect(combineStreamProcess, SIGNAL(started()), this, SLOT(processStarted()));
+    connect(combineStreamProcess, SIGNAL(readyReadStandardOutput()), this,SLOT(readyReadStandardOutput()));
+    connect(combineStreamProcess, SIGNAL(errorOccurred(QProcess::ProcessError)), this, SLOT(processError(QProcess::ProcessError)));
+    //connect(combineStreamProcess, SIGNAL(finished(int)), this, SLOT(encodingFinished()));
 }
 
+///
+/// \brief AvRecorder::setCameraStatus
+/// \param value
+///
 void AvRecorder::setCameraStatus(bool value)
 {
     ui->statusCamera->setText(value ? "Success" : "Failed");
@@ -227,20 +264,61 @@ void AvRecorder::setCameraStatus(bool value)
                                             QStringLiteral("QLabel { color: red }"));
 }
 
-// ---------------------------------------------------------------------
+///
+/// \brief AvRecorder::changeIdSlot
+/// \param value
+///
+void AvRecorder::changeIdSlot(QString value)
+{
+    emit changeSessionConditionSignal(0, value);
+}
 
+///
+/// \brief AvRecorder::changeSessionSlot
+/// \param value
+///
+void AvRecorder::changeSessionSlot(QString value)
+{
+    emit changeSessionConditionSignal(1, value);
+}
+
+///
+/// \brief AvRecorder::changeTreatmentSlot
+/// \param value
+///
+void AvRecorder::changeTreatmentSlot(QString value)
+{
+    emit changeSessionConditionSignal(2, value);
+}
+
+///
+/// \brief AvRecorder::changeConditionSlot
+/// \param value
+///
+void AvRecorder::changeConditionSlot(QString value)
+{
+    emit changeSessionConditionSignal(3, value);
+}
+
+///
+/// \brief AvRecorder::~AvRecorder
+///
 AvRecorder::~AvRecorder()
 {
     delete audioRecorder;
     delete probe;
 }
 
-// ---------------------------------------------------------------------
-
+///
+/// \brief AvRecorder::updateProgress
+/// \param duration
+///
 void AvRecorder::updateProgress(qint64 duration)
 {
     if (audioRecorder->error() != QMediaRecorder::NoError || duration < 2000)
+    {
         return;
+    }
 
     QFileInfo wavFile(dirName+"/audio.wav");
     QFileInfo ca1File(dirName+"/capture0.avi");
@@ -261,11 +339,15 @@ void AvRecorder::updateProgress(qint64 duration)
                                .arg(ca1File.size()/1024/1024));
 }
 
-// ---------------------------------------------------------------------
-
+///
+/// \brief AvRecorder::updateStatus
+/// \param status
+///
 void AvRecorder::updateStatus(QMediaRecorder::Status status)
 {
     QString statusMessage;
+    QString program = "/usr/local/bin/ffmpeg";
+    QStringList arguments;
 
     switch (status) {
     case QMediaRecorder::RecordingStatus:
@@ -277,9 +359,39 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
         break;
 
     case QMediaRecorder::UnloadedStatus:
-    case QMediaRecorder::LoadedStatus:
+        qDebug() << "Stopped, QProcess here";
+
+
+        arguments << "-y"
+                  << "-i"
+                  << QString("%1capture.avi").arg(dirName)
+                  << "-i"
+                  << QString("%1audio.avi").arg(dirName)
+                  << "-async"
+                  << "1"
+                  << "-c"
+                  << "copy"
+                  << QString("%1output.avi").arg(dirName);
+
+        //combineStreamProcess->setProcessChannelMode(QProcess::MergedChannels);
+        QDir::setCurrent(dirName);
+        combineStreamProcess->setWorkingDirectory(dirName);
+
+        combineStreamProcess->start("/usr/local/bin/ffmpeg -y -i capture.avi -i audio.wav -async 1 -c copy output.avi");
+        //combineStreamProcess->start(QString(" -h"));
+                                    //.arg("ffmpeg -i capture.avi -i audio.wav -async 1 -c copy output.avi"));
+
+        //# ffmpeg -i capture.avi -i audio.wav -async 1 -c copy output.avi
 
         statusMessage = tr("Recording stopped");
+
+        break;
+
+    case QMediaRecorder::LoadedStatus:
+        qDebug() << "Loaded";
+
+        break;
+
     default:
         break;
     }
@@ -288,8 +400,29 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
         ui->statusbar->showMessage(statusMessage);
 }
 
-// ---------------------------------------------------------------------
+void AvRecorder::readyReadStandardOutput()
+{
+    //mOutputString.append(mTranscodingProcess->readAllStandardOutput());
+    //ui->textEdit->setText(mOutputString);
 
+    qDebug() << combineStreamProcess->readAllStandardOutput();
+
+}
+
+void AvRecorder::processStarted()
+{
+    qDebug() << "processStarted()";
+}
+
+void AvRecorder::processError(QProcess::ProcessError err)
+{
+    qDebug() << err;
+}
+
+///
+/// \brief AvRecorder::onStateChanged
+/// \param state
+///
 void AvRecorder::onStateChanged(QMediaRecorder::State state)
 {
     switch (state) {
@@ -307,22 +440,29 @@ void AvRecorder::onStateChanged(QMediaRecorder::State state)
     emit stateChanged(state);
 }
 
-// ---------------------------------------------------------------------
-
+///
+/// \brief boxValue
+/// \param box
+/// \return
+///
 static QVariant boxValue(const QComboBox *box)
 {
     int idx = box->currentIndex();
     if (idx == -1)
+    {
         return QVariant();
+    }
 
     return box->itemData(idx);
 }
 
-// ---------------------------------------------------------------------
-
+///
+/// \brief AvRecorder::toggleRecord
+///
 void AvRecorder::toggleRecord()
 {
-    if (!outputLocationSet) {
+    if (!outputLocationSet)
+    {
         QMessageBox msgBox;
         msgBox.setWindowTitle("Session recorder");
         msgBox.setIcon(QMessageBox::Information);
@@ -335,6 +475,8 @@ void AvRecorder::toggleRecord()
 
     if (!outputLocationSet)
         return;
+
+    emit outputDirectory(dirName);
 
     if (audioRecorder->state() == QMediaRecorder::StoppedState) {
         audioRecorder->setAudioInput(boxValue(ui->audioDeviceBox).toString());
@@ -435,8 +577,9 @@ void AvRecorder::toggleRecord()
     }
 }
 
-// ---------------------------------------------------------------------
-
+///
+/// \brief AvRecorder::togglePause
+///
 void AvRecorder::togglePause()
 {
     if (audioRecorder->state() != QMediaRecorder::PausedState)
@@ -445,23 +588,10 @@ void AvRecorder::togglePause()
         audioRecorder->record();
 }
 
-// ---------------------------------------------------------------------
-
+///
+/// \brief AvRecorder::setOutputLocation
+///
 void AvRecorder::setOutputLocation() {
-    QDir dir(defaultDir);
-
-    if (!dir.exists())
-    {
-        qDebug() << "Creating directory" << defaultDir;
-
-        if (!dir.mkpath("."))
-        {
-            qWarning() << "WARNING: Failed to create directory" << defaultDir;
-
-            defaultDir = QDir::homePath();
-        }
-    }
-
     if (!dirName.isNull() && !dirName.isEmpty())
     {
         ui->statusbar->showMessage("Output directory: "+dirName);
@@ -470,7 +600,7 @@ void AvRecorder::setOutputLocation() {
 
         emit outputDirectory(dirName);
 
-        ui->lineEditOutputFolder->setText(defaultDir);
+        ui->lineEditOutputFolder->setText(dirName);
 
         outputLocationSet = true;
 
@@ -517,12 +647,15 @@ void AvRecorder::setOutputLocation() {
     }
 }
 
-// ---------------------------------------------------------------------
-
+///
+/// \brief AvRecorder::OutputLocationEmptyOrOk
+/// \return
+///
 bool AvRecorder::OutputLocationEmptyOrOk() {
     QDir dir(dirName);
 
-    if (!dir.exists()) {
+    if (!dir.exists())
+    {
         qDebug() << "OutputLocationEmptyOrOk(): Directory"
                  << dirName
                  << "does not exist, this should not happen";
@@ -530,7 +663,8 @@ bool AvRecorder::OutputLocationEmptyOrOk() {
         return false;
     }
 
-    if (dir.entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries).count()) {
+    if (dir.entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries).count())
+    {
         QMessageBox msgBox;
         msgBox.setWindowTitle("Session Recorder");
         msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
@@ -547,21 +681,31 @@ bool AvRecorder::OutputLocationEmptyOrOk() {
     return true;
 }
 
-// ---------------------------------------------------------------------
-
+///
+/// \brief AvRecorder::displayErrorMessage
+///
 void AvRecorder::displayErrorMessage()
 {
     ui->statusbar->showMessage(audioRecorder->errorString());
 }
 
+///
+/// \brief AvRecorder::displayErrorMessage
+/// \param e
+///
 void AvRecorder::displayErrorMessage(const QString &e)
 {
     ui->statusbar->showMessage(e);
 }
 
-// ---------------------------------------------------------------------
-
-// This function returns the maximum possible sample value for a given audio format
+///
+/// \brief getPeakValue
+///
+/// This function returns the maximum possible sample value for a given audio format
+///
+/// \param format
+/// \return
+///
 qreal getPeakValue(const QAudioFormat& format)
 {
     // Note: Only the most common sample formats are supported
@@ -599,9 +743,14 @@ qreal getPeakValue(const QAudioFormat& format)
     return qreal(0);
 }
 
-// ---------------------------------------------------------------------
-
-// returns the audio level for each channel
+///
+/// \brief getBufferLevels
+///
+/// returns the audio level for each channel
+///
+/// \param buffer
+/// \return
+///
 QVector<qreal> getBufferLevels(const QAudioBuffer& buffer)
 {
     QVector<qreal> values;
@@ -652,10 +801,10 @@ QVector<qreal> getBufferLevels(const QAudioBuffer& buffer)
     return values;
 }
 
-// ---------------------------------------------------------------------
-
-template <class T>
-QVector<qreal> getBufferLevels(const T *buffer, int frames, int channels)
+///
+///
+///
+template <class T> QVector<qreal> getBufferLevels(const T *buffer, int frames, int channels)
 {
     QVector<qreal> max_values;
     max_values.fill(0, channels);
@@ -671,8 +820,10 @@ QVector<qreal> getBufferLevels(const T *buffer, int frames, int channels)
     return max_values;
 }
 
-// ---------------------------------------------------------------------
-
+///
+/// \brief AvRecorder::processBuffer
+/// \param buffer
+///
 void AvRecorder::processBuffer(const QAudioBuffer& buffer)
 {
     if (audioLevels.count() != buffer.format().channelCount()) {
@@ -690,33 +841,35 @@ void AvRecorder::processBuffer(const QAudioBuffer& buffer)
         audioLevels.at(i)->setLevel(levels.at(i));
 }
 
-// ---------------------------------------------------------------------
-
+///
+/// \brief AvRecorder::processQImage
+/// \param qimg
+///
 void AvRecorder::processQImage(const QImage qimg) {
     ui->viewfinder_0->setPixmap(QPixmap::fromImage(qimg));
     ui->viewfinder_0->show();
 }
 
-// ---------------------------------------------------------------------
-
+///
+/// \brief AvRecorder::setCameraOutput
+/// \param wxh
+///
 void AvRecorder::setCameraOutput(QString wxh) {
     emit cameraOutput(wxh);
 }
 
-// ---------------------------------------------------------------------
-
+///
+/// \brief AvRecorder::setCameraFramerate
+/// \param fps
+///
 void AvRecorder::setCameraFramerate(QString fps) {
     emit cameraFramerate(fps);
 }
 
-// ---------------------------------------------------------------------
-
+///
+/// \brief AvRecorder::setCamera0State
+/// \param state
+///
 void AvRecorder::setCamera0State(int state) {
     emit cameraPowerChanged(0, state);
 }
-
-// ---------------------------------------------------------------------
-
-// Local Variables:
-// c-basic-offset: 4
-// End:

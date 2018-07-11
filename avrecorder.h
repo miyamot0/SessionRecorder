@@ -94,6 +94,7 @@
 #include <QMediaRecorder>
 #include <QDateTime>
 #include <QSettings>
+#include <QProcess>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class AvRecorder; }
@@ -120,11 +121,22 @@ signals:
     void cameraPowerChanged(int, int);
     void sendSessionDetails(QString, QString, QString, QString);
 
+    void changeSessionConditionSignal(int, QString);
+
 public slots:
     void processBuffer(const QAudioBuffer&);
     void processQImage(const QImage qimg);
     void displayErrorMessage(const QString&);
     void setCameraStatus(bool value);
+
+    void changeIdSlot(QString);
+    void changeSessionSlot(QString);
+    void changeTreatmentSlot(QString);
+    void changeConditionSlot(QString);
+
+    void processStarted();
+    void readyReadStandardOutput();
+
 
 private slots:
     void setOutputLocation();
@@ -143,24 +155,28 @@ private slots:
 
     void displayErrorMessage();
 
+    void processError(QProcess::ProcessError err);
+
 private:
     Ui::AvRecorder *ui;
+
+    QProcess *combineStreamProcess;
 
     QAudioRecorder *audioRecorder;
     QAudioProbe *probe;
     QList<QAudioLevel*> audioLevels;
-    bool outputLocationSet;
 
     QString defaultDir;
     QString dirName;
 
     QDateTime rec_started;
 
-    // Hard-coded values
+    bool outputLocationSet;
+
+    // TODO: change hard-coded values
     int channelCount = 1;
     int fpsCount = 30;
     int sampleRate = 22050;
-
 };
 
 #endif // AVRECORDER_H
