@@ -88,15 +88,10 @@
 ****************************************************************************/
 
 #include <QApplication>
-#include <QDebug>
-
 #include <QtWidgets>
-#include <QTextStream>
 
 #include "avrecorder.h"
 #include "camerathread.h"
-
-void StatusOutput();
 
 int main(int argc, char *argv[])
 {
@@ -109,12 +104,12 @@ int main(int argc, char *argv[])
     AvRecorder recorder;
     recorder.show();
 
-    StatusOutput();
-
     QList<CameraThread *> cameras;
 
+    // Just primary camera for now
     CameraThread* cam;
 
+    // TODO: hard-coded resolution
     cam = new CameraThread(0, "1280x720");
 
     QObject::connect(&recorder, SIGNAL(outputDirectory(const QString&)), cam, SLOT(setOutputDirectory(const QString&)));
@@ -128,12 +123,15 @@ int main(int argc, char *argv[])
     QObject::connect(cam, SIGNAL(errorMessage(const QString&)), &recorder, SLOT(displayErrorMessage(const QString&)));
     QObject::connect(cam, SIGNAL(cameraConnected(bool)), &recorder, SLOT(setCameraStatus(bool)));
 
+    // Start thread, once signals for status are connected
     cam->start();
 
+    // Append to list, for easy shutdown (if more than one)
     cameras.append(cam);
 
     const int retval = a.exec();
 
+    // Kill off cameras on shutdown
     QList<CameraThread *>::iterator i;
     for (i = cameras.begin(); i != cameras.end(); ++i)
     {
@@ -153,25 +151,4 @@ int main(int argc, char *argv[])
     }
 
     return retval;
-}
-
-///
-/// \brief StatusOutput
-///
-void StatusOutput()
-{
-#if defined(Q_OS_MAC)
-    qDebug() << "Running on OS X";
-#elif defined(Q_OS_LINUX)
-    qDebug() << "Running on Linux";
-    qDebug() << "Querying for v4l2 devices:";
-    int res = system("/usr/bin/v4l2-ctl --list-devices");
-    if (res)
-      qWarning() << "WARNING: /usr/bin/v4l2-ctl not found or failed. "
-         << "This may cause problems";
-#elif defined(Q_OS_WIN)
-    qDebug() << "Running on Windows";
-#else
-    qWarning() << "Unknown operating system";
-#endif
 }
