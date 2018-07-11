@@ -96,22 +96,21 @@
 #include <QMessageBox>
 #include <QShortcut>
 #include <QTimer>
+
+#ifdef QT_DEBUG
 #include <QDebug>
+#endif
 
 #include "avrecorder.h"
 #include "qaudiolevel.h"
 
 #include "ui_avrecorder.h"
 
-// ---------------------------------------------------------------------
-
 static qreal getPeakValue(const QAudioFormat &format);
 static QVector<qreal> getBufferLevels(const QAudioBuffer &buffer);
 
 template <class T>
 static QVector<qreal> getBufferLevels(const T *buffer, int frames, int channels);
-
-// ---------------------------------------------------------------------
 
 AvRecorder::AvRecorder(QWidget *parent) :
     QMainWindow(parent),
@@ -222,14 +221,15 @@ AvRecorder::AvRecorder(QWidget *parent) :
     settings.endGroup();
     settings.sync();
 
-    qDebug() << dirName;
-
     QDir dir(dirName);
     if (!dir.exists())
     {
         if (!dir.mkpath("."))
         {
+
+#ifdef QT_DEBUG
             qWarning() << "WARNING: Failed to create directory" << defaultDir;
+#endif
 
             defaultDir = QDir::homePath();
 
@@ -248,8 +248,12 @@ AvRecorder::AvRecorder(QWidget *parent) :
 
     combineStreamProcess = new QProcess(this);
     connect(combineStreamProcess, SIGNAL(started()), this, SLOT(processStarted()));
+
+#ifdef QT_DEBUG
     connect(combineStreamProcess, SIGNAL(readyReadStandardOutput()), this,SLOT(readyReadStandardOutput()));
     connect(combineStreamProcess, SIGNAL(errorOccurred(QProcess::ProcessError)), this, SLOT(processError(QProcess::ProcessError)));
+#endif
+
     //connect(combineStreamProcess, SIGNAL(finished(int)), this, SLOT(encodingFinished()));
 }
 
@@ -325,6 +329,7 @@ void AvRecorder::updateProgress(qint64 duration)
 
     qint64 duration_human = duration / 1000;
     QString duration_unit = "secs";
+
     if (duration_human > 100)
     {
         duration_human /= 60;
@@ -347,7 +352,13 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
 {
     QString statusMessage;
     QString program = "/usr/local/bin/ffmpeg";
-    QStringList arguments;
+
+    QString idNumber = QString::number(ui->lineEditId->text().toInt()).rightJustified(4, '0');
+    QString sessNumber = QString::number(ui->lineEditSession->text().toInt()).rightJustified(4, '0');
+
+    QDir dirNew(QString("%1/%2/%3").arg(dirName)
+             .arg(idNumber)
+             .arg(ui->lineEditTx->text()));
 
     switch (status) {
     case QMediaRecorder::RecordingStatus:
@@ -359,36 +370,34 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
         break;
 
     case QMediaRecorder::UnloadedStatus:
+
+#ifdef QT_DEBUG
         qDebug() << "Stopped, QProcess here";
+#endif
 
-
-        arguments << "-y"
-                  << "-i"
-                  << QString("%1capture.avi").arg(dirName)
-                  << "-i"
-                  << QString("%1audio.avi").arg(dirName)
-                  << "-async"
-                  << "1"
-                  << "-c"
-                  << "copy"
-                  << QString("%1output.avi").arg(dirName);
-
-        //combineStreamProcess->setProcessChannelMode(QProcess::MergedChannels);
         QDir::setCurrent(dirName);
         combineStreamProcess->setWorkingDirectory(dirName);
 
-        combineStreamProcess->start("/usr/local/bin/ffmpeg -y -i capture.avi -i audio.wav -async 1 -c copy output.avi");
-        //combineStreamProcess->start(QString(" -h"));
-                                    //.arg("ffmpeg -i capture.avi -i audio.wav -async 1 -c copy output.avi"));
+        if (!dirNew.exists())
+        {
+            dirNew.mkpath(".");
+        }
 
-        //# ffmpeg -i capture.avi -i audio.wav -async 1 -c copy output.avi
+        combineStreamProcess->start(QString("%1 -y -i capture.avi -i audio.wav -async 1 -c copy %2/%3/%4-output.avi")
+                                    .arg(program)
+                                    .arg(idNumber)
+                                    .arg(ui->lineEditTx->text())
+                                    .arg(sessNumber));
 
         statusMessage = tr("Recording stopped");
 
         break;
 
     case QMediaRecorder::LoadedStatus:
+
+#ifdef QT_DEBUG
         qDebug() << "Loaded";
+#endif
 
         break;
 
@@ -400,23 +409,41 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
         ui->statusbar->showMessage(statusMessage);
 }
 
+///
+/// \brief AvRecorder::readyReadStandardOutput
+///
 void AvRecorder::readyReadStandardOutput()
 {
-    //mOutputString.append(mTranscodingProcess->readAllStandardOutput());
-    //ui->textEdit->setText(mOutputString);
 
+#ifdef QT_DEBUG
     qDebug() << combineStreamProcess->readAllStandardOutput();
+#endif
 
 }
 
+///
+/// \brief AvRecorder::processStarted
+///
 void AvRecorder::processStarted()
 {
+
+#ifdef QT_DEBUG
     qDebug() << "processStarted()";
+#endif
+
 }
 
+///
+/// \brief AvRecorder::processError
+/// \param err
+///
 void AvRecorder::processError(QProcess::ProcessError err)
 {
+
+#ifdef QT_DEBUG
     qDebug() << err;
+#endif
+
 }
 
 ///
@@ -448,6 +475,7 @@ void AvRecorder::onStateChanged(QMediaRecorder::State state)
 static QVariant boxValue(const QComboBox *box)
 {
     int idx = box->currentIndex();
+
     if (idx == -1)
     {
         return QVariant();
@@ -583,9 +611,13 @@ void AvRecorder::toggleRecord()
 void AvRecorder::togglePause()
 {
     if (audioRecorder->state() != QMediaRecorder::PausedState)
+    {
         audioRecorder->pause();
+    }
     else
+    {
         audioRecorder->record();
+    }
 }
 
 ///
@@ -594,9 +626,9 @@ void AvRecorder::togglePause()
 void AvRecorder::setOutputLocation() {
     if (!dirName.isNull() && !dirName.isEmpty())
     {
-        ui->statusbar->showMessage("Output directory: "+dirName);
+        ui->statusbar->showMessage("Output directory: " + dirName);
 
-        audioRecorder->setOutputLocation(QUrl::fromLocalFile(dirName+"/audio.wav"));
+        audioRecorder->setOutputLocation(QUrl::fromLocalFile(dirName + "/audio.wav"));
 
         emit outputDirectory(dirName);
 
@@ -656,9 +688,12 @@ bool AvRecorder::OutputLocationEmptyOrOk() {
 
     if (!dir.exists())
     {
+
+#ifdef QT_DEBUG
         qDebug() << "OutputLocationEmptyOrOk(): Directory"
                  << dirName
                  << "does not exist, this should not happen";
+#endif
 
         return false;
     }
