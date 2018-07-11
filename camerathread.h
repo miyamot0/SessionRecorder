@@ -59,6 +59,8 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
+using namespace cv;
+
 class CameraThread : public QThread
 {
     Q_OBJECT
@@ -89,23 +91,18 @@ public:
 private:
     QImage Mat2QImage(cv::Mat const& src);
 
-    /// Aspect ratio preserving resize
     void resizeAR(cv::Mat &, cv::Size);
-
     void setDefaultDesiredInputSize();
 
-    int framerate = 30;
     int fourcc;
-
     int idx;
 
     cv::Size desired_input_size;
-
     cv::Size input_size;
 
     bool record_video;
-
-    bool is_active, was_active;
+    bool is_active;
+    bool was_active;
 
     cv::VideoWriter video;
 
@@ -117,19 +114,39 @@ private:
 
     bool stopLoop;
 
-    int winSizeH = 640;
-    int winSizeV = 360;
-
     QString winId = "";
     QString winSession = "";
     QString winTreatment = "";
     QString winCondition = "";
 
+    const char* idTag;
+    const char* sessTag;
+    const char* trtTag;
+    const char* condTag;
+
+    // Hard-coded values
+    int winSizeH = 640;
+    int winSizeV = 360;
+
+    Point topRect1;
+    Point topRect2;
+
+    Point topText1;
+    Point topText2;
+    Point topText3;
+    Point topText4;
+
+    double avgload = 0.0;
+    size_t nframe = 0;
+
+    // Default annotation values
+    cv::HersheyFonts fontType = HersheyFonts::FONT_HERSHEY_PLAIN;
+    Scalar yellowColor = Scalar(255, 255, 255);
+    Scalar blackColor = Scalar(0, 0, 0);
+    double fontScale = 1.0;
+
+    // TODO: adjustable framerate
+    int framerate = 30;
 };
 
 #endif // CAMERATHREAD_H
-
-// Local Variables:
-// mode: c++
-// c-basic-offset: 4
-// End:
