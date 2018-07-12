@@ -111,6 +111,7 @@ class AvRecorder : public QMainWindow
 
 public:
     AvRecorder(QWidget *parent = 0);
+    void LoadPreviousOptions();
     ~AvRecorder();
 
 signals:

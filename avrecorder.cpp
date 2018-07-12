@@ -209,6 +209,27 @@ AvRecorder::AvRecorder(QWidget *parent) :
     }
 }
 
+void AvRecorder::LoadPreviousOptions()
+{
+    QSettings settings(QSettings::UserScope, QLatin1String("Session Recorder"));
+    settings.beginGroup(QLatin1String("InitializationDialog"));
+
+    /*
+    ui->comboBoxVideoDevice->setCurrentText(settings.value(QLatin1String("comboBoxVideoDevice")).toString());
+    ui->lineEditVideoFPS->setText(settings.value(QLatin1String("lineEditVideoFPS")).toString());
+
+    ui->comboBoxAudioDevice->setCurrentText(settings.value(QLatin1String("comboBoxAudioDevice")).toString());
+    ui->comboBoxAudioCodec->setCurrentText(settings.value(QLatin1String("comboBoxAudioCodec")).toString());
+    ui->comboBoxAudioSampling->setCurrentText(settings.value(QLatin1String("comboBoxAudioSampling")).toString());
+
+    ui->lineEditOutputDirectory->setText(settings.value(QLatin1String("lineEditOutputDirectory")).toString());
+    ui->lineEditFFmpegDirectory->setText(settings.value(QLatin1String("lineEditFFmpegDirectory")).toString());
+    */
+
+    settings.endGroup();
+    settings.sync();
+}
+
 ///
 /// \brief AvRecorder::setCameraStatus
 /// \param value

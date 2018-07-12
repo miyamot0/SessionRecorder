@@ -90,6 +90,7 @@
 #include <QApplication>
 #include <QtWidgets>
 
+#include "initializationdialog.h"
 #include "avrecorder.h"
 #include "camerathread.h"
 
@@ -102,6 +103,9 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("Session Recorder");
 
     QApplication a(argc, argv);
+
+    InitializationDialog initDlg;
+    initDlg.exec();
 
     AvRecorder recorder;
     recorder.show();
