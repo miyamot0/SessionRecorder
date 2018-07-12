@@ -61,7 +61,7 @@ using namespace boost::posix_time;
 using namespace cv;
 
 ///
-/// \brief CameraThread::CameraThread
+/// \brief CameraThread::CameraThreadB
 ///
 /// Construct with a default resolution
 ///
@@ -120,8 +120,11 @@ CameraThread::CameraThread(int i, QString wxh) : idx(i), is_active(false), was_a
 ///
 void CameraThread::setDefaultDesiredInputSize()
 {
-  desired_input_size.width = 1280;
-  desired_input_size.height = 720;
+  //desired_input_size.width = 1280;
+  //desired_input_size.height = 720;
+
+  desired_input_size.width = 640;
+  desired_input_size.height = 480;
 }
 
 ///
@@ -206,10 +209,11 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
     input_size.width =  capture.get(CV_CAP_PROP_FRAME_WIDTH);
     input_size.height = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
 
-#ifdef QT_DEBUG
     qDebug() << "Camera" << idx
              << ": Input size: width:" << input_size.width
              << "height:" << input_size.height;
+
+#ifdef QT_DEBUG
 #endif
 
     emit cameraInfo(idx, input_size.width, input_size.height);

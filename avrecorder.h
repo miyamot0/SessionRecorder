@@ -136,7 +136,7 @@ public slots:
 
     void processStarted();
     void readyReadStandardOutput();
-
+    void encodingFinished();
 
 private slots:
     void setOutputLocation();
@@ -175,7 +175,7 @@ private:
 
     // TODO: change hard-coded values
     int channelCount = 1;
-    int fpsCount = 30;
+    //int fpsCount = 30;
     int sampleRate = 22050;
 };
 

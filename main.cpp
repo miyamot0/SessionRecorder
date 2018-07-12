@@ -112,7 +112,8 @@ int main(int argc, char *argv[])
     CameraThread* cam;
 
     // TODO: hard-coded resolution
-    cam = new CameraThread(0, "1280x720");
+    //cam = new CameraThread(0, "1280x720");
+    cam = new CameraThread(0, "640x480");
 
     QObject::connect(&recorder, SIGNAL(outputDirectory(const QString&)), cam, SLOT(setOutputDirectory(const QString&)));
 

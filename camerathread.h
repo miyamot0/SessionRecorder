@@ -129,7 +129,9 @@ private:
     QString winCondition = "";
 
     // Hard-coded values
-    int winSizeH = 640;
+    //int winSizeH = 640;
+    //int winSizeV = 360;
+    int winSizeH = 480;
     int winSizeV = 360;
 
     Point topRect1;
@@ -149,7 +151,10 @@ private:
     double fontScale = 1.0;
 
     // TODO: adjustable framerate
-    int framerate = 30;
+    // MAC
+    //int framerate = 30;
+
+    int framerate = 15;
 };
 
 #endif // CAMERATHREAD_H
