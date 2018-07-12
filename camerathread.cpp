@@ -110,7 +110,8 @@ CameraThread::CameraThread(int i, QString wxh) : idx(i), is_active(false), was_a
       setDefaultDesiredInputSize();
     }
 
-    window_size = Size(winSizeH, winSizeV);
+    window_size = Size(desired_input_size.width, desired_input_size.height);
+    //window_size = Size(winSizeH, winSizeV);
 }
 
 ///

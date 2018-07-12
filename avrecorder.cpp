@@ -166,6 +166,8 @@ void AvRecorder::LoadPreviousOptions()
     lineEditOutputDirectory = settings.value(QLatin1String("lineEditOutputDirectory")).toString();
     lineEditFFmpegDirectory = settings.value(QLatin1String("lineEditFFmpegDirectory")).toString();
 
+    changeShownResolution(settings.value(QLatin1String("comboBoxAudioCodec")).toString());
+
     settings.endGroup();
     settings.sync();
 
@@ -178,6 +180,27 @@ void AvRecorder::LoadPreviousOptions()
     ui->statusFFmpeg->setText(ffmpegFile.exists() ? "Success" : "Not Found");
     ui->statusFFmpeg->setStyleSheet(ffmpegFile.exists() ? QStringLiteral("QLabel { color: green }") :
                                                           QStringLiteral("QLabel { color: red }"));
+}
+
+void AvRecorder::changeShownResolution(QString val)
+{
+    int x, y;
+
+    if (val.contains('x'))
+    {
+        QStringList wh = val.split('x');
+
+        bool ok = true;
+
+        x = wh.at(0).toInt(&ok);
+        y = wh.at(1).toInt(&ok);
+
+        if (ok)
+        {
+            //ui->viewfinder_0->setFixedSize(x, y);
+            ui->viewfinder_0->resize(x, y);
+        }
+    }
 }
 
 ///

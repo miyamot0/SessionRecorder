@@ -156,6 +156,8 @@ private slots:
     void processError(QProcess::ProcessError err);
 
 private:
+    void changeShownResolution(QString val);
+
     Ui::AvRecorder *ui;
 
     QProcess *combineStreamProcess;
