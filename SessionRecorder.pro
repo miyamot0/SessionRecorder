@@ -50,15 +50,18 @@ SOURCES += \
     main.cpp \
     camerathread.cpp \
     avrecorder.cpp \
-    qaudiolevel.cpp
+    qaudiolevel.cpp \
+    initializationdialog.cpp
 
 HEADERS += \
     camerathread.h \
     avrecorder.h \
-    qaudiolevel.h
+    qaudiolevel.h \
+    initializationdialog.h
 
 FORMS += \
-    avrecorder.ui
+    avrecorder.ui \
+    initializationdialog.ui
 
 DISTFILES += \
     README.md \
