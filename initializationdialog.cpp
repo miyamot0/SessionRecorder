@@ -75,7 +75,15 @@ InitializationDialog::InitializationDialog(QWidget *parent) :
     connect(ui->comboBoxAspectRatio, SIGNAL(currentIndexChanged(int)), this, SLOT(AspectRatioChanged(int)));
 
     connect(ui->pushButtonOutputDirectory, SIGNAL(clicked(bool)), this, SLOT(SelectOutputDirectory(bool)));
+
+#ifdef _WIN32
     connect(ui->pushButtonFFmpegDirectory, SIGNAL(clicked(bool)), this, SLOT(SelectFFmpegDirectory(bool)));
+#elif __APPLE__
+    ui->pushButtonFFmpegDirectory->setEnabled(false);
+
+    ui->lineEditFFmpegDirectory->setText("/usr/local/bin");
+    ui->lineEditFFmpegDirectory->setEnabled(false);
+#endif
 }
 
 ///
