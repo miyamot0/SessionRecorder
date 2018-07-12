@@ -156,15 +156,18 @@ void InitializationDialog::LoadPreviousOptions()
     ui->comboBoxVideoDevice->setCurrentText(settings.value(QLatin1String("comboBoxVideoDevice")).toString());
     ui->lineEditVideoFPS->setText(settings.value(QLatin1String("lineEditVideoFPS")).toString());
 
-    ui->comboBoxAspectRatio->setCurrentIndex(settings.value(QLatin1String("comboBoxAspectRatio")).toInt());
-    ui->comboBoxResolution->setCurrentText(settings.value(QLatin1String("comboBoxResolution")).toString());
-
     ui->comboBoxAudioDevice->setCurrentText(settings.value(QLatin1String("comboBoxAudioDevice")).toString());
     ui->comboBoxAudioCodec->setCurrentText(settings.value(QLatin1String("comboBoxAudioCodec")).toString());
     ui->comboBoxAudioSampling->setCurrentText(settings.value(QLatin1String("comboBoxAudioSampling")).toString());
 
     ui->lineEditOutputDirectory->setText(settings.value(QLatin1String("lineEditOutputDirectory")).toString());
     ui->lineEditFFmpegDirectory->setText(settings.value(QLatin1String("lineEditFFmpegDirectory")).toString());
+
+    ui->comboBoxAspectRatio->setCurrentText(settings.value(QLatin1String("comboBoxAspectRatio")).toString());
+    ui->comboBoxResolution->setCurrentText(settings.value(QLatin1String("comboBoxResolution")).toString());
+
+    AspectRatioChanged(ui->comboBoxAspectRatio->currentIndex());
+    ui->comboBoxResolution->setCurrentText(settings.value(QLatin1String("comboBoxResolution")).toString());
 
     settings.endGroup();
     settings.sync();
