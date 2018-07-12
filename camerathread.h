@@ -60,12 +60,6 @@
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
-/**
-#include "opencv/highgui.h"
-#include "opencv/cv.h"
-#include <opencv/cxcore.h>
- */
-
 using namespace cv;
 
 class CameraThread : public QThread
@@ -128,7 +122,7 @@ private:
     QString winTreatment = "";
     QString winCondition = "";
 
-    // Hard-coded values
+    // TODO: remove Hard-coded values
     //int winSizeH = 640;
     //int winSizeV = 360;
     int winSizeH = 480;
@@ -150,10 +144,7 @@ private:
     Scalar blackColor = Scalar(0, 0, 0);
     double fontScale = 1.0;
 
-    // TODO: adjustable framerate
-    // MAC
-    //int framerate = 30;
-
+    // TODO: MBP = 30, Win = 15
     int framerate = 15;
 };
 
