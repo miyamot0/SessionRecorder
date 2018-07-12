@@ -49,6 +49,8 @@ class InitializationDialog : public QDialog
 public:
     explicit InitializationDialog(QWidget *parent = 0);
     int getSelectedVideoSource();
+    QString getSelectedResolution();
+
     ~InitializationDialog();
 
 public slots:

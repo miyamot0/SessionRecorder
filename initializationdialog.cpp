@@ -99,6 +99,7 @@ void InitializationDialog::AspectRatioChanged(int index)
     switch (index) {
     case (int) AspectRatio::Standard:
         ui->comboBoxResolution->clear();
+
         ui->comboBoxResolution->addItem(tr("320x240"), QVariant("320x240"));
         ui->comboBoxResolution->addItem(tr("640x480"), QVariant("640x480"));
         ui->comboBoxResolution->addItem(tr("1280x960"), QVariant("1280x960"));
@@ -107,6 +108,7 @@ void InitializationDialog::AspectRatioChanged(int index)
 
     case (int) AspectRatio::Widescreen:
         ui->comboBoxResolution->clear();
+
         ui->comboBoxResolution->addItem(tr("320x180"), QVariant("320x180"));
         ui->comboBoxResolution->addItem(tr("640x360"), QVariant("640x360"));
         ui->comboBoxResolution->addItem(tr("1280x720"), QVariant("1280x720"));
@@ -116,10 +118,23 @@ void InitializationDialog::AspectRatioChanged(int index)
     }
 }
 
+///
+/// \brief InitializationDialog::getSelectedVideoSource
+/// \return
+///
 int InitializationDialog::getSelectedVideoSource()
 {
     return (ui->comboBoxVideoDevice->currentIndex() != 0) ? ui->comboBoxVideoDevice->currentIndex() - 1 :
                                                             0;
+}
+
+///
+/// \brief InitializationDialog::getSelectedResolution
+/// \return
+///
+QString InitializationDialog::getSelectedResolution()
+{
+    return ui->comboBoxResolution->currentText();
 }
 
 ///
