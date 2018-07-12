@@ -168,6 +168,16 @@ void AvRecorder::LoadPreviousOptions()
 
     settings.endGroup();
     settings.sync();
+
+#ifdef _WIN32
+    QFileInfo ffmpegFile(lineEditFFmpegDirectory+"/ffmpeg.exe");
+#elif __APPLE__
+    QFileInfo ffmpegFile(lineEditFFmpegDirectory+"/ffmpeg");
+#endif
+
+    ui->statusFFmpeg->setText(ffmpegFile.exists() ? "Success" : "Not Found");
+    ui->statusFFmpeg->setStyleSheet(ffmpegFile.exists() ? QStringLiteral("QLabel { color: green }") :
+                                                          QStringLiteral("QLabel { color: red }"));
 }
 
 ///
