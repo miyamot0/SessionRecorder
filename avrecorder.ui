@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>762</width>
+    <width>792</width>
     <height>542</height>
    </rect>
   </property>
@@ -40,7 +40,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_3">
     <property name="bottomMargin">
-     <number>12</number>
+     <number>0</number>
     </property>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
@@ -131,7 +131,7 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>250</width>
+                <width>275</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -215,7 +215,7 @@
                   <widget class="QLabel" name="label_7">
                    <property name="minimumSize">
                     <size>
-                     <width>150</width>
+                     <width>0</width>
                      <height>0</height>
                     </size>
                    </property>
@@ -245,7 +245,7 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>250</width>
+                <width>275</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -254,14 +254,10 @@
               </property>
               <layout class="QVBoxLayout" name="verticalLayout">
                <item>
-                <widget class="QCheckBox" name="checkBoxNag">
-                 <property name="text">
-                  <string>Warn on Overwrite?</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
                 <widget class="QCheckBox" name="checkBox">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="text">
                   <string>Merge files? (Recommended)</string>
                  </property>
@@ -283,6 +279,13 @@
                  </property>
                 </widget>
                </item>
+               <item>
+                <widget class="QCheckBox" name="checkBoxNag">
+                 <property name="text">
+                  <string>Warn on Overwrite?</string>
+                 </property>
+                </widget>
+               </item>
               </layout>
              </widget>
             </item>
@@ -296,7 +299,7 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>250</width>
+                <width>275</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -401,6 +404,19 @@
               </property>
              </widget>
             </item>
+            <item>
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
            </layout>
           </item>
          </layout>
@@ -419,8 +435,6 @@
   <tabstop>lineEditTx</tabstop>
   <tabstop>lineEditCond</tabstop>
   <tabstop>checkBoxNag</tabstop>
-  <tabstop>checkBox</tabstop>
-  <tabstop>checkBox_2</tabstop>
  </tabstops>
  <resources/>
  <connections/>
