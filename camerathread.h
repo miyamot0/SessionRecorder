@@ -55,9 +55,16 @@
 #include <QImage>
 #include <QMediaRecorder>
 
-#include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
+#include "opencv2/core.hpp"
+#include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
+
+/**
+#include "opencv/highgui.h"
+#include "opencv/cv.h"
+#include <opencv/cxcore.h>
+ */
 
 using namespace cv;
 
@@ -137,7 +144,6 @@ private:
     size_t nframe = 0;
 
     // Default annotation values
-    cv::HersheyFonts fontType = HersheyFonts::FONT_HERSHEY_PLAIN;
     Scalar yellowColor = Scalar(255, 255, 255);
     Scalar blackColor = Scalar(0, 0, 0);
     double fontScale = 1.0;

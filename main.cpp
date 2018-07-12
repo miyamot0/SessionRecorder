@@ -93,6 +93,8 @@
 #include "avrecorder.h"
 #include "camerathread.h"
 
+#include <QDebug>
+
 int main(int argc, char *argv[])
 {
     QCoreApplication::setOrganizationName("Shawn Gilroy");

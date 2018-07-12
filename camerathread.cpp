@@ -182,8 +182,7 @@ void CameraThread::updateSessionConditions(int index, QString value)
 /// Note: Q_DECL_OVERRIDE produces an error on OS X 10.11 / Qt 5.6:
 ///
 ///
-void CameraThread::run() //Q_DECL_OVERRIDE
-{
+void CameraThread::run() { //Q_DECL_OVERRIDE
     QString result;
 
     time_duration td, td1, td2;
@@ -285,28 +284,28 @@ void CameraThread::run() //Q_DECL_OVERRIDE
               putText(frame,
                       QString("ID: %1").arg(winId).toStdString().c_str(),
                       topText1,
-                      fontType,
+                      FONT_HERSHEY_PLAIN,
                       fontScale,
                       yellowColor);
 
               putText(frame,
                       QString("Session: %1").arg(winSession).toStdString().c_str(),
                       topText2,
-                      fontType,
+                      FONT_HERSHEY_PLAIN,
                       fontScale,
                       yellowColor);
 
               putText(frame,
                       QString("Treatment: %1").arg(winTreatment).toStdString().c_str(),
                       topText3,
-                      fontType,
+                      FONT_HERSHEY_PLAIN,
                       fontScale,
                       yellowColor);
 
               putText(frame,
                       QString("Condition: %1").arg(winCondition).toStdString().c_str(),
                       topText4,
-                      fontType,
+                      FONT_HERSHEY_PLAIN,
                       fontScale,
                       yellowColor);
 
@@ -321,7 +320,7 @@ void CameraThread::run() //Q_DECL_OVERRIDE
               putText(frame,
                       datetime.toString().toStdString().c_str(),
                       Point(10,frame.rows-10),
-                      fontType,
+                      FONT_HERSHEY_PLAIN,
                       fontScale,
                       yellowColor);
 
