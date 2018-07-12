@@ -63,9 +63,17 @@ InitializationDialog::InitializationDialog(QWidget *parent) :
         ui->comboBoxAudioSampling->addItem(QString::number(sampleRate), QVariant(sampleRate));
     }
 
+    ui->comboBoxAspectRatio->addItem(tr("Standard"), QVariant(AspectRatio::Standard));
+    ui->comboBoxAspectRatio->addItem(tr("Wide Screen"), QVariant(AspectRatio::Widescreen));
+
+    AspectRatioChanged(0);
+
     LoadPreviousOptions();
 
     connect(ui->buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(SaveAndValidate(QAbstractButton*)));
+
+    connect(ui->comboBoxAspectRatio, SIGNAL(currentIndexChanged(int)), this, SLOT(AspectRatioChanged(int)));
+
     connect(ui->pushButtonOutputDirectory, SIGNAL(clicked(bool)), this, SLOT(SelectOutputDirectory(bool)));
     connect(ui->pushButtonFFmpegDirectory, SIGNAL(clicked(bool)), this, SLOT(SelectFFmpegDirectory(bool)));
 }
@@ -84,6 +92,37 @@ void InitializationDialog::SaveAndValidate(QAbstractButton* clicked)
 }
 
 ///
+/// \brief InitializationDialog::AspectRatioChanged
+///
+void InitializationDialog::AspectRatioChanged(int index)
+{
+    switch (index) {
+    case (int) AspectRatio::Standard:
+        ui->comboBoxResolution->clear();
+        ui->comboBoxResolution->addItem(tr("320x240"), QVariant("320x240"));
+        ui->comboBoxResolution->addItem(tr("640x480"), QVariant("640x480"));
+        ui->comboBoxResolution->addItem(tr("1280x960"), QVariant("1280x960"));
+
+        break;
+
+    case (int) AspectRatio::Widescreen:
+        ui->comboBoxResolution->clear();
+        ui->comboBoxResolution->addItem(tr("320x180"), QVariant("320x180"));
+        ui->comboBoxResolution->addItem(tr("640x360"), QVariant("640x360"));
+        ui->comboBoxResolution->addItem(tr("1280x720"), QVariant("1280x720"));
+        break;
+    default:
+        break;
+    }
+}
+
+int InitializationDialog::getSelectedVideoSource()
+{
+    return (ui->comboBoxVideoDevice->currentIndex() != 0) ? ui->comboBoxVideoDevice->currentIndex() - 1 :
+                                                            0;
+}
+
+///
 /// \brief InitializationDialog::LoadPreviousOptions
 ///
 void InitializationDialog::LoadPreviousOptions()
@@ -93,6 +132,9 @@ void InitializationDialog::LoadPreviousOptions()
 
     ui->comboBoxVideoDevice->setCurrentText(settings.value(QLatin1String("comboBoxVideoDevice")).toString());
     ui->lineEditVideoFPS->setText(settings.value(QLatin1String("lineEditVideoFPS")).toString());
+
+    ui->comboBoxAspectRatio->setCurrentIndex(settings.value(QLatin1String("comboBoxAspectRatio")).toInt());
+    ui->comboBoxResolution->setCurrentText(settings.value(QLatin1String("comboBoxResolution")).toString());
 
     ui->comboBoxAudioDevice->setCurrentText(settings.value(QLatin1String("comboBoxAudioDevice")).toString());
     ui->comboBoxAudioCodec->setCurrentText(settings.value(QLatin1String("comboBoxAudioCodec")).toString());
@@ -115,6 +157,9 @@ void InitializationDialog::SaveCurrentOptions()
 
     settings.setValue(QLatin1String("comboBoxVideoDevice"), ui->comboBoxVideoDevice->currentText());
     settings.setValue(QLatin1String("lineEditVideoFPS"), ui->lineEditVideoFPS->text());
+
+    settings.setValue(QLatin1String("comboBoxAspectRatio"), ui->comboBoxAspectRatio->currentText());
+    settings.setValue(QLatin1String("comboBoxResolution"), ui->comboBoxResolution->currentText());
 
     settings.setValue(QLatin1String("comboBoxAudioDevice"), ui->comboBoxAudioDevice->currentText());
     settings.setValue(QLatin1String("comboBoxAudioCodec"), ui->comboBoxAudioCodec->currentText());

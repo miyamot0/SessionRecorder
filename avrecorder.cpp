@@ -114,117 +114,57 @@ static QVector<qreal> getBufferLevels(const T *buffer, int frames, int channels)
 
 AvRecorder::AvRecorder(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::AvRecorder),
-    outputLocationSet(false)
+    ui(new Ui::AvRecorder)
 {
     ui->setupUi(this);
     resize(0,0);
 
-    // <!-- Setup Audio Recorder -->
-    {
-        audioRecorder = new QAudioRecorder(this);
-        probe = new QAudioProbe;
-        connect(probe, SIGNAL(audioBufferProbed(QAudioBuffer)), this, SLOT(processBuffer(QAudioBuffer)));
-        probe->setSource(audioRecorder);
+    LoadPreviousOptions();
 
-        connect(audioRecorder, SIGNAL(durationChanged(qint64)), this, SLOT(updateProgress(qint64)));
-        connect(audioRecorder, SIGNAL(statusChanged(QMediaRecorder::Status)), this, SLOT(updateStatus(QMediaRecorder::Status)));
-        connect(audioRecorder, SIGNAL(stateChanged(QMediaRecorder::State)), this, SLOT(onStateChanged(QMediaRecorder::State)));
-        connect(audioRecorder, SIGNAL(error(QMediaRecorder::Error)), this, SLOT(displayErrorMessage()));
-    }
+    // <!-- Setup Audio Recorder -->
+    audioRecorder = new QAudioRecorder(this);
+    probe = new QAudioProbe;
+    connect(probe, SIGNAL(audioBufferProbed(QAudioBuffer)), this, SLOT(processBuffer(QAudioBuffer)));
+    probe->setSource(audioRecorder);
+
+    connect(audioRecorder, SIGNAL(durationChanged(qint64)), this, SLOT(updateProgress(qint64)));
+    connect(audioRecorder, SIGNAL(statusChanged(QMediaRecorder::Status)), this, SLOT(updateStatus(QMediaRecorder::Status)));
+    connect(audioRecorder, SIGNAL(stateChanged(QMediaRecorder::State)), this, SLOT(onStateChanged(QMediaRecorder::State)));
+    connect(audioRecorder, SIGNAL(error(QMediaRecorder::Error)), this, SLOT(displayErrorMessage()));
 
     // <!-- Setup Interaction -->
-    {
-        connect(ui->recordButton, SIGNAL(clicked(bool)), this, SLOT(toggleRecord()));
-        connect(ui->outputButton, SIGNAL(clicked(bool)), this, SLOT(setOutputLocation()));
+    connect(ui->recordButton, SIGNAL(clicked(bool)), this, SLOT(toggleRecord()));
 
-        connect(ui->lineEditId, SIGNAL(textChanged(QString)), this, SLOT(changeIdSlot(QString)));
-        connect(ui->lineEditSession, SIGNAL(textChanged(QString)), this, SLOT(changeSessionSlot(QString)));
-        connect(ui->lineEditTx, SIGNAL(textChanged(QString)), this, SLOT(changeTreatmentSlot(QString)));
-        connect(ui->lineEditCond, SIGNAL(textChanged(QString)), this, SLOT(changeConditionSlot(QString)));
-    }
-
-    // <!-- Setup default directory -->
-    {
-        defaultDir = QDir::homePath() + "/SessionRecordings";
-
-        QDir dir(dirName);
-        if (!dir.exists())
-        {
-            if (!dir.mkpath("."))
-            {
-                qWarning() << "WARNING: Failed to create directory" << defaultDir;
-
-                outputLocationSet = false;
-            }
-
-            defaultDir = QDir::homePath();
-            outputLocationSet = true;
-        }
-    }
-
-    // <!-- Setup Preferred Dir -->
-    {
-        QSettings settings(QSettings::UserScope, QLatin1String("Session Recorder"));
-        settings.beginGroup(QLatin1String("AvRecorder"));
-
-        dirName = settings.value(QLatin1String("StoredOutputDirectory")).toString();
-
-        ui->lineEditOutputFolder->setText(dirName);
-
-        settings.endGroup();
-        settings.sync();
-
-        QDir dir2(dirName);
-        if (dir2.exists())
-        {
-            emit outputDirectory(dirName);
-            ui->lineEditOutputFolder->setText(dirName);
-
-            outputLocationSet = true;
-        }
-        else
-        {
-
-    #ifdef QT_DEBUG
-            qDebug() << "OutputLocationEmptyOrOk(): Directory"
-                     << dirName
-                     << "does not exist, this should not happen";
-    #endif
-
-            emit outputDirectory(defaultDir);
-            ui->lineEditOutputFolder->setText(defaultDir);
-
-            outputLocationSet = true;
-        }
-    }
+    connect(ui->lineEditId, SIGNAL(textChanged(QString)), this, SLOT(changeIdSlot(QString)));
+    connect(ui->lineEditSession, SIGNAL(textChanged(QString)), this, SLOT(changeSessionSlot(QString)));
+    connect(ui->lineEditTx, SIGNAL(textChanged(QString)), this, SLOT(changeTreatmentSlot(QString)));
+    connect(ui->lineEditCond, SIGNAL(textChanged(QString)), this, SLOT(changeConditionSlot(QString)));
 
     // <!-- Setup Conversion Process -->
-    {
-        combineStreamProcess = new QProcess(this);
-        connect(combineStreamProcess, SIGNAL(started()), this, SLOT(processStarted()));
-        connect(combineStreamProcess, SIGNAL(readyReadStandardOutput()), this,SLOT(readyReadStandardOutput()));
-        connect(combineStreamProcess, SIGNAL(errorOccurred(QProcess::ProcessError)), this, SLOT(processError(QProcess::ProcessError)));
-        connect(combineStreamProcess, SIGNAL(finished(int)), this, SLOT(encodingFinished()));
-    }
+    combineStreamProcess = new QProcess(this);
+    connect(combineStreamProcess, SIGNAL(started()), this, SLOT(processStarted()));
+    connect(combineStreamProcess, SIGNAL(readyReadStandardOutput()), this,SLOT(readyReadStandardOutput()));
+    connect(combineStreamProcess, SIGNAL(errorOccurred(QProcess::ProcessError)), this, SLOT(processError(QProcess::ProcessError)));
+    connect(combineStreamProcess, SIGNAL(finished(int)), this, SLOT(encodingFinished()));
 }
 
+///
+/// \brief AvRecorder::LoadPreviousOptions
+///
 void AvRecorder::LoadPreviousOptions()
 {
     QSettings settings(QSettings::UserScope, QLatin1String("Session Recorder"));
     settings.beginGroup(QLatin1String("InitializationDialog"));
 
-    /*
-    ui->comboBoxVideoDevice->setCurrentText(settings.value(QLatin1String("comboBoxVideoDevice")).toString());
-    ui->lineEditVideoFPS->setText(settings.value(QLatin1String("lineEditVideoFPS")).toString());
+    comboBoxVideoDevice = settings.value(QLatin1String("comboBoxVideoDevice")).toString();
+    lineEditVideoFPS = settings.value(QLatin1String("lineEditVideoFPS")).toDouble();
 
-    ui->comboBoxAudioDevice->setCurrentText(settings.value(QLatin1String("comboBoxAudioDevice")).toString());
-    ui->comboBoxAudioCodec->setCurrentText(settings.value(QLatin1String("comboBoxAudioCodec")).toString());
-    ui->comboBoxAudioSampling->setCurrentText(settings.value(QLatin1String("comboBoxAudioSampling")).toString());
+    comboBoxAudioDevice = settings.value(QLatin1String("comboBoxAudioDevice")).toString();
+    comboBoxAudioCodec = settings.value(QLatin1String("comboBoxAudioCodec")).toString();
+    comboBoxAudioSampling = settings.value(QLatin1String("comboBoxAudioSampling")).toString();
 
-    ui->lineEditOutputDirectory->setText(settings.value(QLatin1String("lineEditOutputDirectory")).toString());
-    ui->lineEditFFmpegDirectory->setText(settings.value(QLatin1String("lineEditFFmpegDirectory")).toString());
-    */
+    lineEditOutputDirectory = settings.value(QLatin1String("lineEditOutputDirectory")).toString();
+    lineEditFFmpegDirectory = settings.value(QLatin1String("lineEditFFmpegDirectory")).toString();
 
     settings.endGroup();
     settings.sync();
@@ -297,8 +237,8 @@ void AvRecorder::updateProgress(qint64 duration)
         return;
     }
 
-    QFileInfo wavFile(dirName+"/audio.wav");
-    QFileInfo ca1File(dirName+"/capture.avi");
+    QFileInfo wavFile(lineEditOutputDirectory+"/audio.wav");
+    QFileInfo ca1File(lineEditOutputDirectory+"/capture.avi");
 
     qint64 duration_human = duration / 1000;
     QString duration_unit = "secs";
@@ -325,16 +265,12 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
 {
     QString statusMessage;
 
-#ifdef _WIN32
-    QString program = "C:/local/ffmpeg-4.0.1-win64-static/bin/ffmpeg";
-#elif __APPLE__
-    QString program = "/usr/local/bin/ffmpeg";
-#endif
+    QString program = QString(lineEditFFmpegDirectory + "/ffmpeg");
 
     QString idNumber = QString::number(ui->lineEditId->text().toInt()).rightJustified(4, '0');
     QString sessNumber = QString::number(ui->lineEditSession->text().toInt()).rightJustified(4, '0');
 
-    QDir dirNew(QString("%1/%2/%3").arg(dirName)
+    QDir dirNew(QString("%1/%2/%3").arg(lineEditOutputDirectory)
              .arg(idNumber)
              .arg(ui->lineEditTx->text()));
 
@@ -353,8 +289,8 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
         qDebug() << "Stopped, QProcess here";
 #endif
 
-        QDir::setCurrent(dirName);
-        combineStreamProcess->setWorkingDirectory(dirName);
+        QDir::setCurrent(lineEditOutputDirectory);
+        combineStreamProcess->setWorkingDirectory(lineEditOutputDirectory);
 
         if (!dirNew.exists())
         {
@@ -458,61 +394,34 @@ void AvRecorder::onStateChanged(QMediaRecorder::State state)
 }
 
 ///
-/// \brief boxValue
-/// \param box
-/// \return
-///
-static QVariant boxValue(const QComboBox *box)
-{
-    int idx = box->currentIndex();
-
-    if (idx == -1)
-    {
-        return QVariant();
-    }
-
-    return box->itemData(idx);
-}
-
-///
 /// \brief AvRecorder::toggleRecord
 ///
 void AvRecorder::toggleRecord()
 {
-    if (!outputLocationSet)
-    {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle("Session recorder");
-        msgBox.setIcon(QMessageBox::Information);
-        msgBox.setText("Create target directory first");
-        msgBox.setInformativeText("Before recording, you need to create a directory "
-                      "to store the media files.");
-        msgBox.exec();
-
-        setOutputLocation();
-    }
-
-    if (!outputLocationSet)
-        return;
-
-    emit outputDirectory(dirName);
+    emit outputDirectory(lineEditOutputDirectory);
 
     if (audioRecorder->state() == QMediaRecorder::StoppedState)
     {
-        audioRecorder->setAudioInput(boxValue(ui->audioDeviceBox).toString());
-        audioRecorder->setOutputLocation(QUrl::fromLocalFile(dirName+"/audio.wav"));
-
-        if (!OutputLocationEmptyOrOk())
-            return;
+        audioRecorder->setAudioInput(comboBoxAudioDevice);
+        audioRecorder->setOutputLocation(QUrl::fromLocalFile(lineEditOutputDirectory+"/audio.wav"));
 
         emit sendSessionDetails(ui->lineEditId->text(),
                                 ui->lineEditSession->text(),
                                 ui->lineEditTx->text(),
                                 ui->lineEditCond->text());
 
+        /*
+            double lineEditVideoFPS;
+
+            QString comboBoxAudioDevice;
+
+            QString lineEditOutputDirectory;
+            QString ;
+        */
+
         QAudioEncoderSettings settings;
-        settings.setCodec("audio/amr");
-        settings.setSampleRate(44100);
+        settings.setCodec(comboBoxAudioCodec);
+        settings.setSampleRate(comboBoxAudioSampling.toInt());
         settings.setChannelCount(1);
         settings.setQuality(QMultimedia::VeryHighQuality);
 
@@ -528,18 +437,12 @@ void AvRecorder::toggleRecord()
         ui->lineEditSession->setEnabled(false);
         ui->lineEditTx->setEnabled(false);
         ui->lineEditCond->setEnabled(false);
-
-        ui->audioCodecBox->setEnabled(false);
-        ui->audioDeviceBox->setEnabled(false);
     }
     else {
         ui->lineEditId->setEnabled(true);
         ui->lineEditSession->setEnabled(true);
         ui->lineEditTx->setEnabled(true);
         ui->lineEditCond->setEnabled(true);
-
-        ui->audioCodecBox->setEnabled(true);
-        ui->audioDeviceBox->setEnabled(true);
 
         audioRecorder->stop();
     }
@@ -558,89 +461,6 @@ void AvRecorder::togglePause()
     {
         audioRecorder->record();
     }
-}
-
-///
-/// \brief AvRecorder::setOutputLocation
-///
-void AvRecorder::setOutputLocation() {
-    dirName = QFileDialog::getExistingDirectory(this,
-                                                "Select or create a directory",
-                                                defaultDir,
-                                                QFileDialog::ShowDirsOnly);
-
-
-    if (!dirName.isNull() && !dirName.isEmpty())
-    {
-        ui->statusbar->showMessage("Output directory: "+dirName);
-        audioRecorder->setOutputLocation(QUrl::fromLocalFile(dirName+"/audio.wav"));
-
-        outputLocationSet = true;
-
-        QSettings settings(QSettings::UserScope, QLatin1String("Session Recorder"));
-        settings.beginGroup(QLatin1String("AvRecorder"));
-
-        settings.setValue(QLatin1String("StoredOutputDirectory"), dirName);
-
-        settings.endGroup();
-        settings.sync();
-
-        emit outputDirectory(dirName);
-        ui->lineEditOutputFolder->setText(dirName);
-    }
-    else
-    {
-        dirName = defaultDir;
-
-        emit outputDirectory(dirName);
-
-        outputLocationSet = false;
-
-        QSettings settings(QSettings::UserScope, QLatin1String("Session Recorder"));
-        settings.beginGroup(QLatin1String("AvRecorder"));
-
-        settings.setValue(QLatin1String("StoredOutputDirectory"), dirName);
-
-        settings.endGroup();
-        settings.sync();
-    }
-}
-
-///
-/// \brief AvRecorder::OutputLocationEmptyOrOk
-/// \return
-///
-bool AvRecorder::OutputLocationEmptyOrOk() {
-    QDir dir(dirName);
-
-    if (!dir.exists())
-    {
-
-#ifdef QT_DEBUG
-        qDebug() << "OutputLocationEmptyOrOk(): Directory"
-                 << dirName
-                 << "does not exist, this should not happen";
-#endif
-
-        return false;
-    }
-
-    if (dir.entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries).count())
-    {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle("Session Recorder");
-        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-        msgBox.setDefaultButton(QMessageBox::Ok);
-        msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setText("Directory not empty.");
-        msgBox.setInformativeText("The selected output directory for recording "
-                      "is not empty. The old recording will be "
-                      "overwritten.");
-
-        return (msgBox.exec() == QMessageBox::Ok);
-    }
-
-    return true;
 }
 
 ///

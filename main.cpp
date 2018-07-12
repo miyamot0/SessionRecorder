@@ -93,6 +93,7 @@
 #include "initializationdialog.h"
 #include "avrecorder.h"
 #include "camerathread.h"
+#include "enums.h"
 
 #include <QDebug>
 
@@ -117,7 +118,7 @@ int main(int argc, char *argv[])
 
     // TODO: hard-coded resolution
     //cam = new CameraThread(0, "1280x720");
-    cam = new CameraThread(0, "640x480");
+    cam = new CameraThread(initDlg.getSelectedVideoSource(), "640x480");
 
     QObject::connect(&recorder, SIGNAL(outputDirectory(const QString&)), cam, SLOT(setOutputDirectory(const QString&)));
 

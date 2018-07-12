@@ -36,6 +36,8 @@
 #include <QSettings>
 #include <QFileDialog>
 
+#include "enums.h"
+
 namespace Ui {
 class InitializationDialog;
 }
@@ -46,6 +48,7 @@ class InitializationDialog : public QDialog
 
 public:
     explicit InitializationDialog(QWidget *parent = 0);
+    int getSelectedVideoSource();
     ~InitializationDialog();
 
 public slots:
@@ -53,6 +56,8 @@ public slots:
 
     void SelectOutputDirectory(bool);
     void SelectFFmpegDirectory(bool);
+
+    void AspectRatioChanged(int index);
 
 private:
     Ui::InitializationDialog *ui;

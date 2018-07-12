@@ -57,7 +57,8 @@ HEADERS += \
     camerathread.h \
     avrecorder.h \
     qaudiolevel.h \
-    initializationdialog.h
+    initializationdialog.h \
+    enums.h
 
 FORMS += \
     avrecorder.ui \

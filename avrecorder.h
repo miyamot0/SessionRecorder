@@ -140,9 +140,6 @@ public slots:
     void encodingFinished();
 
 private slots:
-    void setOutputLocation();
-    bool OutputLocationEmptyOrOk();
-
     void togglePause();
     void toggleRecord();
 
@@ -167,17 +164,20 @@ private:
     QAudioProbe *probe;
     QList<QAudioLevel*> audioLevels;
 
-    QString defaultDir;
-    QString dirName;
-
     QDateTime rec_started;
-
-    bool outputLocationSet;
 
     // TODO: change hard-coded values
     int channelCount = 1;
-    //int fpsCount = 30;
-    int sampleRate = 22050;
+
+    QString comboBoxVideoDevice;
+    double lineEditVideoFPS;
+
+    QString comboBoxAudioDevice;
+    QString comboBoxAudioCodec;
+    QString comboBoxAudioSampling;
+
+    QString lineEditOutputDirectory;
+    QString lineEditFFmpegDirectory;
 };
 
 #endif // AVRECORDER_H
