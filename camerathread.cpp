@@ -91,26 +91,26 @@ CameraThread::CameraThread(int i) : idx(i), is_active(false), was_active(false)
 ///
 CameraThread::CameraThread(int i, QString wxh) : idx(i), is_active(false), was_active(false)
 {
-  if (wxh.contains('x'))
-  {
-      QStringList wh = wxh.split('x');
+    if (wxh.contains('x'))
+    {
+        QStringList wh = wxh.split('x');
 
-      bool ok = true;
+        bool ok = true;
 
-      desired_input_size.width = wh.at(0).toInt(&ok);
-      desired_input_size.height = wh.at(1).toInt(&ok);
+        desired_input_size.width = wh.at(0).toInt(&ok);
+        desired_input_size.height = wh.at(1).toInt(&ok);
 
-      if (!ok)
-      {
-          setDefaultDesiredInputSize();
-      }
-  }
-  else
-  {
+        if (!ok)
+        {
+            setDefaultDesiredInputSize();
+        }
+    }
+    else
+    {
       setDefaultDesiredInputSize();
-  }
+    }
 
-  window_size = Size(winSizeH, winSizeV);
+    window_size = Size(winSizeH, winSizeV);
 }
 
 ///
@@ -120,9 +120,6 @@ CameraThread::CameraThread(int i, QString wxh) : idx(i), is_active(false), was_a
 ///
 void CameraThread::setDefaultDesiredInputSize()
 {
-  //desired_input_size.width = 1280;
-  //desired_input_size.height = 720;
-
   desired_input_size.width = 640;
   desired_input_size.height = 480;
 }
@@ -251,7 +248,6 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
     QDateTime datetime;
     for (;;)
     {
-
         if (stopLoop)
         {
             qDebug() << "Camera" << idx << "stopping";
@@ -541,9 +537,7 @@ QImage CameraThread::Mat2QImage(cv::Mat const& src)
 ///
 void CameraThread::setCameraOutput(QString wxh)
 {
-#ifdef QT_DEBUG
     qDebug() << "CameraThread::setCameraOutput(): " << wxh;
-#endif
 
     if (wxh == "Original")
     {
