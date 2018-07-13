@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>792</width>
-    <height>542</height>
+    <height>558</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -270,7 +270,17 @@
                 </widget>
                </item>
                <item>
-                <widget class="QCheckBox" name="checkBox_2">
+                <widget class="QCheckBox" name="checkBoxCompression">
+                 <property name="text">
+                  <string>Compress Video Streams (longer)</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkBoxIncrement">
                  <property name="text">
                   <string>Auto-Increment Session Number?</string>
                  </property>

@@ -95,6 +95,7 @@
 #include <QDateTime>
 #include <QSettings>
 #include <QProcess>
+#include <QMessageBox>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class AvRecorder; }
@@ -158,6 +159,8 @@ private slots:
 private:
     void changeShownResolution(QString val);
 
+    bool isSessionAnInt();
+
     Ui::AvRecorder *ui;
 
     QProcess *combineStreamProcess;
@@ -167,6 +170,8 @@ private:
     QList<QAudioLevel*> audioLevels;
 
     QDateTime rec_started;
+
+    int sessionNumber;
 
     // TODO: change hard-coded values
     int channelCount = 1;

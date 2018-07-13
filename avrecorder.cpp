@@ -182,6 +182,10 @@ void AvRecorder::LoadPreviousOptions()
                                                           QStringLiteral("QLabel { color: red }"));
 }
 
+///
+/// \brief AvRecorder::changeShownResolution
+/// \param val
+///
 void AvRecorder::changeShownResolution(QString val)
 {
     int x, y;
@@ -330,13 +334,28 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
             dirNew.mkpath(".");
         }
 
-        combineStreamProcess->start(QString("%1 -y -i capture.avi -i audio.wav -async 1 -c copy %2/%3/%4-output.avi")
-                                    .arg(program)
-                                    .arg(idNumber)
-                                    .arg(ui->lineEditTx->text())
-                                    .arg(sessNumber));
+        if (ui->checkBoxCompression->isChecked())
+        {
+            combineStreamProcess->start(QString("%1 -y -i capture.avi -i audio.wav -async 1 -vcodec libx264 -crf 24 %2/%3/%4-output.avi")
+                                        .arg(program)
+                                        .arg(idNumber)
+                                        .arg(ui->lineEditTx->text())
+                                        .arg(sessNumber));
 
-        statusMessage = tr("Recording stopped");
+            statusMessage = tr("Converting files...");
+        }
+        else
+        {
+            combineStreamProcess->start(QString("%1 -y -i capture.avi -i audio.wav -async 1 -c copy %2/%3/%4-output.avi")
+                                        .arg(program)
+                                        .arg(idNumber)
+                                        .arg(ui->lineEditTx->text())
+                                        .arg(sessNumber));
+
+            statusMessage = tr("Combining files...");
+        }
+
+        ui->statusbar->showMessage(statusMessage);
 
         break;
 
@@ -378,6 +397,13 @@ void AvRecorder::processStarted()
     qDebug() << "processStarted()";
 #endif
 
+
+    ui->recordButton->setEnabled(false);
+
+    if (ui->checkBoxIncrement->isChecked())
+    {
+        ui->lineEditSession->setText(QString::number(sessionNumber + 1));
+    }
 }
 
 ///
@@ -390,6 +416,8 @@ void AvRecorder::encodingFinished()
     qDebug() << "encodingFinished()";
 #endif
 
+    ui->statusbar->showMessage(tr("Video operations completed."));
+    ui->recordButton->setEnabled(true);
 }
 
 ///
@@ -431,6 +459,13 @@ void AvRecorder::onStateChanged(QMediaRecorder::State state)
 ///
 void AvRecorder::toggleRecord()
 {
+    if (!isSessionAnInt())
+    {
+        QMessageBox::warning(this, "Error", "You must enter a session number", QMessageBox::Ok);
+
+        return;
+    }
+
     emit outputDirectory(lineEditOutputDirectory);
 
     if (audioRecorder->state() == QMediaRecorder::StoppedState)
@@ -442,15 +477,6 @@ void AvRecorder::toggleRecord()
                                 ui->lineEditSession->text(),
                                 ui->lineEditTx->text(),
                                 ui->lineEditCond->text());
-
-        /*
-            double lineEditVideoFPS;
-
-            QString comboBoxAudioDevice;
-
-            QString lineEditOutputDirectory;
-            QString ;
-        */
 
         QAudioEncoderSettings settings;
         settings.setCodec(comboBoxAudioCodec);
@@ -688,3 +714,17 @@ void AvRecorder::setCameraFramerate(QString fps) {
 void AvRecorder::setCamera0State(int state) {
     emit cameraPowerChanged(0, state);
 }
+
+///
+/// \brief AvRecorder::isSessionAnInt
+/// \return
+///
+bool AvRecorder::isSessionAnInt()
+{
+    bool check;
+
+    sessionNumber = ui->lineEditSession->text().toInt(&check);
+
+    return check;
+}
+
