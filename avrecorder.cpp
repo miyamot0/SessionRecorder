@@ -738,7 +738,8 @@ void AvRecorder::processBuffer(const QAudioBuffer& buffer)
 /// \param qimg
 ///
 void AvRecorder::processQImage(const QImage qimg) {
-    ui->viewfinder_0->setPixmap(QPixmap::fromImage(qimg));
+    ui->viewfinder_0->setPixmap(QPixmap::fromImage(qimg.scaled(ui->viewfinder_0->width(), ui->viewfinder_0->height(),
+                                                               Qt::KeepAspectRatio)));
     ui->viewfinder_0->show();
 }
 
