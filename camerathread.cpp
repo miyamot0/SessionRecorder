@@ -183,6 +183,8 @@ void CameraThread::updateSessionConditions(int index, QString value)
 ///
 ///
 void CameraThread::run() { //Q_DECL_OVERRIDE
+    qDebug() << "CameraThread::run()";
+
     QString result;
 
     time_duration td, td1, td2;
@@ -199,6 +201,9 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
         emit cameraConnected(false);
 
         return;
+    }
+    else {
+        qDebug() << "Camera connected!";
     }
 
     emit cameraConnected(true);
@@ -220,11 +225,7 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
 
     record_video = false;
 
-#if defined(Q_OS_WIN)
-    fourcc = -1;
-#else
     fourcc = CV_FOURCC('m','p','4','v');
-#endif
 
     output_size = Size(input_size.width, input_size.height);
 
@@ -467,15 +468,21 @@ void CameraThread::onStateChanged(QMediaRecorder::State state)
         if (!video.isOpened())
         {
 
-#ifdef QT_DEBUG
             qDebug() << QString("CameraThread::onStateChanged(): initializing "
-                    "VideoWriter for camera %1; Location %2").arg(idx).arg(outdir);
-#endif
+                    "VideoWriter for camera %1; Location %2").arg(idx).arg(outdir+filename);
+
+            qDebug() << fourcc;
+
+            qDebug() << framerate;
+
+            qDebug() << output_size.width;
 
             video.open(QString(outdir+filename).toStdString(),
                        fourcc,
                        framerate,
                        (output_size.width ? output_size : input_size));
+
+            qDebug() << "Opened window";
         }
 
         if (!video.isOpened())
@@ -484,9 +491,8 @@ void CameraThread::onStateChanged(QMediaRecorder::State state)
         }
         else
         {
-#ifdef QT_DEBUG
             qDebug() << QString("CameraThread::onStateChanged(): initialization ready for camera %1").arg(idx);
-#endif
+
             record_video = true;
         }
 

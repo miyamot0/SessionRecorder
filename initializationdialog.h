@@ -34,6 +34,7 @@
 #include <QCameraInfo>
 #include <QAbstractButton>
 #include <QSettings>
+#include <QStandardItemModel>
 #include <QFileDialog>
 
 #include "enums.h"

@@ -34,20 +34,41 @@ InitializationDialog::InitializationDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
+#ifdef QT_DEBUG
+    qDebug() << "InitializationDialog::InitializationDialog()";
+#endif
+
     QList<QCameraInfo> cams = QCameraInfo::availableCameras();
 
     ui->comboBoxVideoDevice->addItem(tr("Default"), QVariant(QString()));
+
+    QStringList videoModel;
+
     foreach (const QCameraInfo &device, cams) {
         ui->comboBoxVideoDevice->addItem(device.description(), QVariant(device.description()));
+        videoModel << device.description();
     }
 
+#ifdef QT_DEBUG
+    qDebug() << "Cameras:";
+    qDebug() << videoModel;
+#endif
+
     QAudioRecorder* audioRecorder = new QAudioRecorder(this);
+
+    QStringList audioModel;
 
     //audio devices
     ui->comboBoxAudioDevice->addItem(tr("Default"), QVariant(QString()));
     foreach (const QString &device, audioRecorder->audioInputs()) {
         ui->comboBoxAudioDevice->addItem(device, QVariant(device));
+        audioModel << device;
     }
+
+#ifdef QT_DEBUG
+    qDebug() << "Microphones:";
+    qDebug() << audioModel;
+#endif
 
     //audio codecs, amr by default
     ui->comboBoxAudioCodec->addItem(tr("Default"), QVariant(QString()));
@@ -63,11 +84,13 @@ InitializationDialog::InitializationDialog(QWidget *parent) :
         ui->comboBoxAudioSampling->addItem(QString::number(sampleRate), QVariant(sampleRate));
     }
 
-    ui->comboBoxAspectRatio->addItem(tr("Standard"), QVariant(AspectRatio::Standard));
-    ui->comboBoxAspectRatio->addItem(tr("Wide Screen"), QVariant(AspectRatio::Widescreen));
+    ui->comboBoxAspectRatio->addItem(tr("Standard"), QVariant(0));
+    ui->comboBoxAspectRatio->addItem(tr("Wide Screen"), QVariant(1));
 
+    // Fire off default 4x3 letterbox
     AspectRatioChanged(0);
 
+    // Load cached options
     LoadPreviousOptions();
 
     connect(ui->buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(SaveAndValidate(QAbstractButton*)));
@@ -97,7 +120,7 @@ void InitializationDialog::SaveAndValidate(QAbstractButton* clicked)
 void InitializationDialog::AspectRatioChanged(int index)
 {
     switch (index) {
-    case (int) AspectRatio::Standard:
+    case 0:
         ui->comboBoxResolution->clear();
 
         ui->comboBoxResolution->addItem(tr("320x240"), QVariant("320x240"));
@@ -106,7 +129,7 @@ void InitializationDialog::AspectRatioChanged(int index)
 
         break;
 
-    case (int) AspectRatio::Widescreen:
+    case 1:
         ui->comboBoxResolution->clear();
 
         ui->comboBoxResolution->addItem(tr("320x180"), QVariant("320x180"));

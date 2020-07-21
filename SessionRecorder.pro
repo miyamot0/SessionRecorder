@@ -43,7 +43,7 @@ win32 {
     INCLUDEPATH += -L$$OPENCVDIR\x64\vc14\bin
     INCLUDEPATH += -L$$OPENCVDIR\x64\vc14\lib
 
-    LIBS += -lopencv_core2413d -lopencv_highgui2413d -lopencv_imgproc2413d
+    LIBS += -lopencv_core2413d -lopencv_highgui2413d -lopencv_imgproc2413d -lopencv_videoiod
 }
 
 SOURCES += \

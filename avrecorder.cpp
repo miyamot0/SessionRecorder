@@ -176,6 +176,8 @@ void AvRecorder::LoadPreviousOptions()
 ///
 void AvRecorder::setCameraStatus(bool value)
 {
+    qDebug() << QString("AvRecorder::setCameraStatus(bool value); value = %1").arg(value);
+
     ui->statusCamera->setText(value ? "Success" : "Failed");
     ui->statusCamera->setStyleSheet(value ? QStringLiteral("QLabel { color: green }") :
                                             QStringLiteral("QLabel { color: red }"));
@@ -402,6 +404,8 @@ void AvRecorder::toggleRecord()
 
     if (audioRecorder->state() == QMediaRecorder::StoppedState)
     {
+        qDebug() << "AvRecorder::toggleRecord() :: Starting State";
+
         audioRecorder->setAudioInput(comboBoxAudioDevice);
         audioRecorder->setOutputLocation(QUrl::fromLocalFile(lineEditOutputDirectory+"/audio.wav"));
 
@@ -419,17 +423,25 @@ void AvRecorder::toggleRecord()
             QString ;
         */
 
+        qDebug() << "AvRecorder::toggleRecord() Audio settings";
+
         QAudioEncoderSettings settings;
         settings.setCodec(comboBoxAudioCodec);
         settings.setSampleRate(comboBoxAudioSampling.toInt());
         settings.setChannelCount(1);
         settings.setQuality(QMultimedia::VeryHighQuality);
 
+        qDebug() << "AvRecorder::toggleRecord() :: Encoding Settings";
+
         audioRecorder->setEncodingSettings(settings,
                                            QVideoEncoderSettings(),
                                            QString("audio/x-wav"));
 
+        qDebug() << "AvRecorder::toggleRecord() :: Pre record";
+
         audioRecorder->record();
+
+        qDebug() << "AvRecorder::toggleRecord() :: Recording...";
 
         rec_started = QDateTime::currentDateTime();
 
@@ -439,6 +451,8 @@ void AvRecorder::toggleRecord()
         ui->lineEditCond->setEnabled(false);
     }
     else {
+        qDebug() << "AvRecorder::toggleRecord() :: Stopping State";
+
         ui->lineEditId->setEnabled(true);
         ui->lineEditSession->setEnabled(true);
         ui->lineEditTx->setEnabled(true);
