@@ -71,9 +71,17 @@ using namespace cv;
 ///
 CameraThread::CameraThread(int i) : idx(i), is_active(false), was_active(false)
 {
+#ifdef QT_DEBUG
+    qDebug() << "CameraThread::CameraThread(int i)";
+#endif
+
     setDefaultDesiredInputSize();
 
     window_size = Size(desired_input_size.width, desired_input_size.height);
+
+#ifdef QT_DEBUG
+    qDebug() << QString("Width: %1, Height: %2").arg(window_size.width).arg(window_size.height);
+#endif
 }
 
 ///
@@ -91,6 +99,10 @@ CameraThread::CameraThread(int i) : idx(i), is_active(false), was_active(false)
 ///
 CameraThread::CameraThread(int i, QString wxh) : idx(i), is_active(false), was_active(false)
 {
+#ifdef QT_DEBUG
+    qDebug() << "CameraThread::CameraThread(int i, QString wxh)";
+#endif
+
     if (wxh.contains('x'))
     {
         QStringList wh = wxh.split('x');
@@ -111,6 +123,10 @@ CameraThread::CameraThread(int i, QString wxh) : idx(i), is_active(false), was_a
     }
 
     window_size = Size(desired_input_size.width, desired_input_size.height);
+
+#ifdef QT_DEBUG
+    qDebug() << QString("Width: %1, Height: %2").arg(window_size.width).arg(window_size.height);
+#endif
 }
 
 ///
@@ -183,7 +199,9 @@ void CameraThread::updateSessionConditions(int index, QString value)
 ///
 ///
 void CameraThread::run() { //Q_DECL_OVERRIDE
+#ifdef QT_DEBUG
     qDebug() << "CameraThread::run()";
+#endif
 
     QString result;
 
@@ -203,7 +221,9 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
         return;
     }
     else {
+#ifdef QT_DEBUG
         qDebug() << "Camera connected!";
+#endif
     }
 
     emit cameraConnected(true);
@@ -211,9 +231,11 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
     input_size.width =  capture.get(CV_CAP_PROP_FRAME_WIDTH);
     input_size.height = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
 
+#ifdef QT_DEBUG
     qDebug() << "Camera" << idx
              << ": Input size: width:" << input_size.width
              << "height:" << input_size.height;
+#endif
 
     emit cameraInfo(idx, input_size.width, input_size.height);
 
@@ -248,7 +270,10 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
     {
         if (stopLoop)
         {
+#ifdef QT_DEBUG
             qDebug() << "Camera" << idx << "stopping";
+#endif
+
             break;
         }
 
@@ -282,28 +307,28 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
               putText(frame,
                       QString("ID: %1").arg(winId).toStdString().c_str(),
                       topText1,
-                      FONT_HERSHEY_PLAIN,
+                      fontStyle,
                       fontScale,
                       yellowColor);
 
               putText(frame,
                       QString("Session: %1").arg(winSession).toStdString().c_str(),
                       topText2,
-                      FONT_HERSHEY_PLAIN,
+                      fontStyle,
                       fontScale,
                       yellowColor);
 
               putText(frame,
                       QString("Treatment: %1").arg(winTreatment).toStdString().c_str(),
                       topText3,
-                      FONT_HERSHEY_PLAIN,
+                      fontStyle,
                       fontScale,
                       yellowColor);
 
               putText(frame,
                       QString("Condition: %1").arg(winCondition).toStdString().c_str(),
                       topText4,
-                      FONT_HERSHEY_PLAIN,
+                      fontStyle,
                       fontScale,
                       yellowColor);
 
@@ -318,7 +343,7 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
               putText(frame,
                       datetime.toString().toStdString().c_str(),
                       Point(10,frame.rows-10),
-                      FONT_HERSHEY_PLAIN,
+                      fontStyle,
                       fontScale,
                       yellowColor);
 
@@ -329,6 +354,7 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
               }
 
               Mat window;
+
               resize(frame, window, window_size);
 
               QImage qimg = Mat2QImage(window);

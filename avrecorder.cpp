@@ -117,6 +117,11 @@ AvRecorder::AvRecorder(QWidget *parent) :
     ui(new Ui::AvRecorder)
 {
     ui->setupUi(this);
+
+#ifdef QT_DEBUG
+    qDebug() << "AvRecorder::AvRecorder(QWidget *parent)";
+#endif
+
     resize(0,0);
 
     LoadPreviousOptions();
@@ -153,6 +158,10 @@ AvRecorder::AvRecorder(QWidget *parent) :
 ///
 void AvRecorder::LoadPreviousOptions()
 {
+#ifdef QT_DEBUG
+    qDebug() << "AvRecorder::LoadPreviousOptions()";
+#endif
+
     QSettings settings(QSettings::UserScope, QLatin1String("Session Recorder"));
     settings.beginGroup(QLatin1String("InitializationDialog"));
 
@@ -201,7 +210,6 @@ void AvRecorder::changeShownResolution(QString val)
 
         if (ok)
         {
-            //ui->viewfinder_0->setFixedSize(x, y);
             ui->viewfinder_0->resize(x, y);
         }
     }
@@ -213,7 +221,10 @@ void AvRecorder::changeShownResolution(QString val)
 ///
 void AvRecorder::setCameraStatus(bool value)
 {
+
+#ifdef QT_DEBUG
     qDebug() << QString("AvRecorder::setCameraStatus(bool value); value = %1").arg(value);
+#endif
 
     ui->statusCamera->setText(value ? "Success" : "Failed");
     ui->statusCamera->setStyleSheet(value ? QStringLiteral("QLabel { color: green }") :
@@ -441,6 +452,10 @@ void AvRecorder::processError(QProcess::ProcessError err)
 ///
 void AvRecorder::onStateChanged(QMediaRecorder::State state)
 {
+#ifdef QT_DEBUG
+    qDebug() << QString("AvRecorder::onStateChanged(QMediaRecorder::State state): %1").arg(state);
+#endif
+
     switch (state) {
     case QMediaRecorder::RecordingState:
         ui->recordButton->setText(tr("Stop"));
@@ -461,6 +476,10 @@ void AvRecorder::onStateChanged(QMediaRecorder::State state)
 ///
 void AvRecorder::toggleRecord()
 {
+#ifdef QT_DEBUG
+    qDebug() << QString("AvRecorder::toggleRecord()");
+#endif
+
     if (!isSessionAnInt())
     {
         QMessageBox::warning(this, "Error", "You must enter a session number", QMessageBox::Ok);
@@ -472,7 +491,10 @@ void AvRecorder::toggleRecord()
 
     if (audioRecorder->state() == QMediaRecorder::StoppedState)
     {
+
+#ifdef QT_DEBUG
         qDebug() << "AvRecorder::toggleRecord() :: Starting State";
+#endif
 
         audioRecorder->setAudioInput(comboBoxAudioDevice);
         audioRecorder->setOutputLocation(QUrl::fromLocalFile(lineEditOutputDirectory+"/audio.wav"));
@@ -482,16 +504,9 @@ void AvRecorder::toggleRecord()
                                 ui->lineEditTx->text(),
                                 ui->lineEditCond->text());
 
-        /*
-            double lineEditVideoFPS;
-
-            QString comboBoxAudioDevice;
-
-            QString lineEditOutputDirectory;
-            QString ;
-        */
-
+#ifdef QT_DEBUG
         qDebug() << "AvRecorder::toggleRecord() Audio settings";
+#endif
 
         QAudioEncoderSettings settings;
         settings.setCodec(comboBoxAudioCodec);
@@ -499,17 +514,23 @@ void AvRecorder::toggleRecord()
         settings.setChannelCount(1);
         settings.setQuality(QMultimedia::VeryHighQuality);
 
+#ifdef QT_DEBUG
         qDebug() << "AvRecorder::toggleRecord() :: Encoding Settings";
+#endif
 
         audioRecorder->setEncodingSettings(settings,
                                            QVideoEncoderSettings(),
                                            QString("audio/x-wav"));
 
+#ifdef QT_DEBUG
         qDebug() << "AvRecorder::toggleRecord() :: Pre record";
+#endif
 
         audioRecorder->record();
 
+#ifdef QT_DEBUG
         qDebug() << "AvRecorder::toggleRecord() :: Recording...";
+#endif
 
         rec_started = QDateTime::currentDateTime();
 
@@ -518,8 +539,11 @@ void AvRecorder::toggleRecord()
         ui->lineEditTx->setEnabled(false);
         ui->lineEditCond->setEnabled(false);
     }
-    else {
+    else
+    {
+#ifdef QT_DEBUG
         qDebug() << "AvRecorder::toggleRecord() :: Stopping State";
+#endif
 
         ui->lineEditId->setEnabled(true);
         ui->lineEditSession->setEnabled(true);
@@ -535,6 +559,10 @@ void AvRecorder::toggleRecord()
 ///
 void AvRecorder::togglePause()
 {
+#ifdef QT_DEBUG
+        qDebug() << "AvRecorder::togglePause()";
+#endif
+
     if (audioRecorder->state() != QMediaRecorder::PausedState)
     {
         audioRecorder->pause();
@@ -744,6 +772,10 @@ void AvRecorder::setCamera0State(int state) {
 ///
 bool AvRecorder::isSessionAnInt()
 {
+#ifdef QT_DEBUG
+        qDebug() << "AvRecorder::isSessionAnInt()";
+#endif
+
     bool check;
 
     sessionNumber = ui->lineEditSession->text().toInt(&check);

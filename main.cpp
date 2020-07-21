@@ -108,16 +108,8 @@ int main(int argc, char *argv[])
     InitializationDialog initDlg;
     initDlg.exec();
 
-#ifdef QT_DEBUG
-    qDebug() << "Opening AvRecorder";
-#endif
-
     AvRecorder recorder;
     recorder.show();
-
-#ifdef QT_DEBUG
-    qDebug() << "Opening Camera Thread";
-#endif
 
     QList<CameraThread *> cameras;
 

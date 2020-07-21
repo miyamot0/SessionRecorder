@@ -103,6 +103,9 @@ private:
     cv::Size desired_input_size;
     cv::Size input_size;
 
+    double fontScale = 0.50;
+    int fontStyle = cv::FONT_ITALIC;
+
     bool record_video;
     bool is_active;
     bool was_active;
@@ -136,7 +139,6 @@ private:
     // Default annotation values
     Scalar yellowColor = Scalar(255, 255, 255);
     Scalar blackColor = Scalar(0, 0, 0);
-    double fontScale = 1.0;
 
     int framerate = 15;
 };

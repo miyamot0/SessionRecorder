@@ -94,9 +94,7 @@ InitializationDialog::InitializationDialog(QWidget *parent) :
     LoadPreviousOptions();
 
     connect(ui->buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(SaveAndValidate(QAbstractButton*)));
-
     connect(ui->comboBoxAspectRatio, SIGNAL(currentIndexChanged(int)), this, SLOT(AspectRatioChanged(int)));
-
     connect(ui->pushButtonOutputDirectory, SIGNAL(clicked(bool)), this, SLOT(SelectOutputDirectory(bool)));
 
 #ifdef _WIN32
