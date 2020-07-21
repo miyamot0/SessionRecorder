@@ -122,12 +122,6 @@ private:
     QString winTreatment = "";
     QString winCondition = "";
 
-    // TODO: remove Hard-coded values
-    //int winSizeH = 640;
-    //int winSizeV = 360;
-    int winSizeH = 480;
-    int winSizeV = 360;
-
     Point topRect1;
     Point topRect2;
 
@@ -144,7 +138,6 @@ private:
     Scalar blackColor = Scalar(0, 0, 0);
     double fontScale = 1.0;
 
-    // TODO: MBP = 30, Win = 15
     int framerate = 15;
 };
 

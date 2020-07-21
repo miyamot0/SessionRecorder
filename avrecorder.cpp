@@ -166,8 +166,45 @@ void AvRecorder::LoadPreviousOptions()
     lineEditOutputDirectory = settings.value(QLatin1String("lineEditOutputDirectory")).toString();
     lineEditFFmpegDirectory = settings.value(QLatin1String("lineEditFFmpegDirectory")).toString();
 
+    changeShownResolution(settings.value(QLatin1String("comboBoxAudioCodec")).toString());
+
     settings.endGroup();
     settings.sync();
+
+#ifdef _WIN32
+    QFileInfo ffmpegFile(lineEditFFmpegDirectory+"/ffmpeg.exe");
+#elif __APPLE__
+    QFileInfo ffmpegFile(lineEditFFmpegDirectory+"/ffmpeg");
+#endif
+
+    ui->statusFFmpeg->setText(ffmpegFile.exists() ? "Success" : "Not Found");
+    ui->statusFFmpeg->setStyleSheet(ffmpegFile.exists() ? QStringLiteral("QLabel { color: green }") :
+                                                          QStringLiteral("QLabel { color: red }"));
+}
+
+///
+/// \brief AvRecorder::changeShownResolution
+/// \param val
+///
+void AvRecorder::changeShownResolution(QString val)
+{
+    int x, y;
+
+    if (val.contains('x'))
+    {
+        QStringList wh = val.split('x');
+
+        bool ok = true;
+
+        x = wh.at(0).toInt(&ok);
+        y = wh.at(1).toInt(&ok);
+
+        if (ok)
+        {
+            //ui->viewfinder_0->setFixedSize(x, y);
+            ui->viewfinder_0->resize(x, y);
+        }
+    }
 }
 
 ///
@@ -299,13 +336,28 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
             dirNew.mkpath(".");
         }
 
-        combineStreamProcess->start(QString("%1 -y -i capture.avi -i audio.wav -async 1 -c copy %2/%3/%4-output.avi")
-                                    .arg(program)
-                                    .arg(idNumber)
-                                    .arg(ui->lineEditTx->text())
-                                    .arg(sessNumber));
+        if (ui->checkBoxCompression->isChecked())
+        {
+            combineStreamProcess->start(QString("%1 -y -i capture.avi -i audio.wav -async 1 -vcodec libx264 -crf 24 %2/%3/%4-output.avi")
+                                        .arg(program)
+                                        .arg(idNumber)
+                                        .arg(ui->lineEditTx->text())
+                                        .arg(sessNumber));
 
-        statusMessage = tr("Recording stopped");
+            statusMessage = tr("Converting files...");
+        }
+        else
+        {
+            combineStreamProcess->start(QString("%1 -y -i capture.avi -i audio.wav -async 1 -c copy %2/%3/%4-output.avi")
+                                        .arg(program)
+                                        .arg(idNumber)
+                                        .arg(ui->lineEditTx->text())
+                                        .arg(sessNumber));
+
+            statusMessage = tr("Combining files...");
+        }
+
+        ui->statusbar->showMessage(statusMessage);
 
         break;
 
@@ -347,6 +399,13 @@ void AvRecorder::processStarted()
     qDebug() << "processStarted()";
 #endif
 
+
+    ui->recordButton->setEnabled(false);
+
+    if (ui->checkBoxIncrement->isChecked())
+    {
+        ui->lineEditSession->setText(QString::number(sessionNumber + 1));
+    }
 }
 
 ///
@@ -359,6 +418,8 @@ void AvRecorder::encodingFinished()
     qDebug() << "encodingFinished()";
 #endif
 
+    ui->statusbar->showMessage(tr("Video operations completed."));
+    ui->recordButton->setEnabled(true);
 }
 
 ///
@@ -400,6 +461,13 @@ void AvRecorder::onStateChanged(QMediaRecorder::State state)
 ///
 void AvRecorder::toggleRecord()
 {
+    if (!isSessionAnInt())
+    {
+        QMessageBox::warning(this, "Error", "You must enter a session number", QMessageBox::Ok);
+
+        return;
+    }
+
     emit outputDirectory(lineEditOutputDirectory);
 
     if (audioRecorder->state() == QMediaRecorder::StoppedState)
@@ -669,3 +737,17 @@ void AvRecorder::setCameraFramerate(QString fps) {
 void AvRecorder::setCamera0State(int state) {
     emit cameraPowerChanged(0, state);
 }
+
+///
+/// \brief AvRecorder::isSessionAnInt
+/// \return
+///
+bool AvRecorder::isSessionAnInt()
+{
+    bool check;
+
+    sessionNumber = ui->lineEditSession->text().toInt(&check);
+
+    return check;
+}
+

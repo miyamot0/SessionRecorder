@@ -98,7 +98,15 @@ InitializationDialog::InitializationDialog(QWidget *parent) :
     connect(ui->comboBoxAspectRatio, SIGNAL(currentIndexChanged(int)), this, SLOT(AspectRatioChanged(int)));
 
     connect(ui->pushButtonOutputDirectory, SIGNAL(clicked(bool)), this, SLOT(SelectOutputDirectory(bool)));
+
+#ifdef _WIN32
     connect(ui->pushButtonFFmpegDirectory, SIGNAL(clicked(bool)), this, SLOT(SelectFFmpegDirectory(bool)));
+#elif __APPLE__
+    ui->pushButtonFFmpegDirectory->setEnabled(false);
+
+    ui->lineEditFFmpegDirectory->setText("/usr/local/bin");
+    ui->lineEditFFmpegDirectory->setEnabled(false);
+#endif
 }
 
 ///
@@ -171,15 +179,18 @@ void InitializationDialog::LoadPreviousOptions()
     ui->comboBoxVideoDevice->setCurrentText(settings.value(QLatin1String("comboBoxVideoDevice")).toString());
     ui->lineEditVideoFPS->setText(settings.value(QLatin1String("lineEditVideoFPS")).toString());
 
-    ui->comboBoxAspectRatio->setCurrentIndex(settings.value(QLatin1String("comboBoxAspectRatio")).toInt());
-    ui->comboBoxResolution->setCurrentText(settings.value(QLatin1String("comboBoxResolution")).toString());
-
     ui->comboBoxAudioDevice->setCurrentText(settings.value(QLatin1String("comboBoxAudioDevice")).toString());
     ui->comboBoxAudioCodec->setCurrentText(settings.value(QLatin1String("comboBoxAudioCodec")).toString());
     ui->comboBoxAudioSampling->setCurrentText(settings.value(QLatin1String("comboBoxAudioSampling")).toString());
 
     ui->lineEditOutputDirectory->setText(settings.value(QLatin1String("lineEditOutputDirectory")).toString());
     ui->lineEditFFmpegDirectory->setText(settings.value(QLatin1String("lineEditFFmpegDirectory")).toString());
+
+    ui->comboBoxAspectRatio->setCurrentText(settings.value(QLatin1String("comboBoxAspectRatio")).toString());
+    ui->comboBoxResolution->setCurrentText(settings.value(QLatin1String("comboBoxResolution")).toString());
+
+    AspectRatioChanged(ui->comboBoxAspectRatio->currentIndex());
+    ui->comboBoxResolution->setCurrentText(settings.value(QLatin1String("comboBoxResolution")).toString());
 
     settings.endGroup();
     settings.sync();

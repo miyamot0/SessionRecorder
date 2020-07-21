@@ -95,7 +95,7 @@
 #include "camerathread.h"
 #include "enums.h"
 
-#include <QDebug>
+//#include <QDebug>
 
 int main(int argc, char *argv[])
 {
@@ -121,7 +121,6 @@ int main(int argc, char *argv[])
 
     QList<CameraThread *> cameras;
 
-    // Just primary camera for now
     CameraThread* cam;
     cam = new CameraThread(initDlg.getSelectedVideoSource(),
                            initDlg.getSelectedResolution());
@@ -162,7 +161,9 @@ int main(int argc, char *argv[])
                 (*i)->terminate();
 
                 if (!(*i)->wait(2000))
-                    qDebug() << "CameraThread failed to terminate!";
+                {
+                    //qDebug() << "CameraThread failed to terminate!";
+                }
             }
         }
     }
