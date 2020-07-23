@@ -324,11 +324,11 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
 
     QString program = QString(lineEditFFmpegDirectory + "/ffmpeg");
 
-    QString idNumber = QString::number(ui->lineEditId->text().toInt()).rightJustified(4, '0');
+    QString id = ui->lineEditId->text();
     QString sessNumber = QString::number(ui->lineEditSession->text().toInt()).rightJustified(4, '0');
 
     QDir dirNew(QString("%1/%2/%3").arg(lineEditOutputDirectory)
-             .arg(idNumber)
+             .arg(id)
              .arg(ui->lineEditTx->text()));
 
     switch (status) {
@@ -356,21 +356,23 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
 
         if (ui->checkBoxCompression->isChecked())
         {
-            combineStreamProcess->start(QString("%1 -y -i capture.avi -i audio.wav -async 1 -vcodec libx264 -crf 24 %2/%3/%4-output.avi")
+            combineStreamProcess->start(QString("%1 -y -i capture.avi -i audio.wav -async 1 -vcodec libx264 -crf 24 %2/%3/%4-%5.avi")
                                         .arg(program)
-                                        .arg(idNumber)
+                                        .arg(id)
                                         .arg(ui->lineEditTx->text())
-                                        .arg(sessNumber));
+                                        .arg(sessNumber)
+                                        .arg(ui->lineEditCond->text()));
 
             statusMessage = tr("Converting files...");
         }
         else
         {
-            combineStreamProcess->start(QString("%1 -y -i capture.avi -i audio.wav -async 1 -c copy %2/%3/%4-output.avi")
+            combineStreamProcess->start(QString("%1 -y -i capture.avi -i audio.wav -async 1 -c copy %2/%3/%4-%5.avi")
                                         .arg(program)
-                                        .arg(idNumber)
+                                        .arg(id)
                                         .arg(ui->lineEditTx->text())
-                                        .arg(sessNumber));
+                                        .arg(sessNumber)
+                                        .arg(ui->lineEditCond->text()));
 
             statusMessage = tr("Combining files...");
         }
