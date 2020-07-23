@@ -55,8 +55,10 @@ Want to contribute? Great! Emails or PM's are welcome.
 
 ### Todos
 ------
- - Resolution options
- - Windows-specific testing/recording options
+ - ~~Resolution options~~
+ - ~~Windows-specific testing/recording options~~
+ - Warn on over-write
+ - Memory for past recording (position, numbering, etc.)
  - Bug testing
 
 ### License
