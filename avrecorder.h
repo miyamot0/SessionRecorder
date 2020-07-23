@@ -97,6 +97,8 @@
 #include <QProcess>
 #include <QMessageBox>
 
+#include "recordsettings.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class AvRecorder; }
 class QAudioRecorder;
@@ -111,8 +113,8 @@ class AvRecorder : public QMainWindow
     Q_OBJECT
 
 public:
-    AvRecorder(QWidget *parent = 0);
-    void LoadPreviousOptions();
+    AvRecorder(RecordSettingsData* recordSettings, QWidget *parent = 0);
+    void LoadPreviousOptions(RecordSettingsData *mSettings);
     ~AvRecorder();
 
 signals:

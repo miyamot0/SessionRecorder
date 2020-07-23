@@ -112,7 +112,7 @@ static QVector<qreal> getBufferLevels(const QAudioBuffer &buffer);
 template <class T>
 static QVector<qreal> getBufferLevels(const T *buffer, int frames, int channels);
 
-AvRecorder::AvRecorder(QWidget *parent) :
+AvRecorder::AvRecorder(RecordSettingsData *recordSettings, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::AvRecorder)
 {
@@ -124,7 +124,7 @@ AvRecorder::AvRecorder(QWidget *parent) :
 
     resize(0,0);
 
-    LoadPreviousOptions();
+    LoadPreviousOptions(recordSettings);
 
     // <!-- Setup Audio Recorder -->
     audioRecorder = new QAudioRecorder(this);
@@ -156,29 +156,36 @@ AvRecorder::AvRecorder(QWidget *parent) :
 ///
 /// \brief AvRecorder::LoadPreviousOptions
 ///
-void AvRecorder::LoadPreviousOptions()
+void AvRecorder::LoadPreviousOptions(RecordSettingsData* mSettings)
 {
 #ifdef QT_DEBUG
     qDebug() << "AvRecorder::LoadPreviousOptions()";
 #endif
 
-    QSettings settings(QSettings::UserScope, QLatin1String("Session Recorder"));
-    settings.beginGroup(QLatin1String("InitializationDialog"));
+    comboBoxVideoDevice     = mSettings->mVideoDevice;
+    lineEditVideoFPS        = mSettings->mVideoFPS.toDouble();
 
-    comboBoxVideoDevice = settings.value(QLatin1String("comboBoxVideoDevice")).toString();
-    lineEditVideoFPS = settings.value(QLatin1String("lineEditVideoFPS")).toDouble();
+    comboBoxAudioDevice     = mSettings->mAudioDevice;
+    comboBoxAudioCodec      = mSettings->mAudioEncoding;
+    comboBoxAudioSampling   = mSettings->mAudioSampling;
 
-    comboBoxAudioDevice = settings.value(QLatin1String("comboBoxAudioDevice")).toString();
-    comboBoxAudioCodec = settings.value(QLatin1String("comboBoxAudioCodec")).toString();
-    comboBoxAudioSampling = settings.value(QLatin1String("comboBoxAudioSampling")).toString();
+    lineEditOutputDirectory = mSettings->fileSaveLocation;
+    lineEditFFmpegDirectory = mSettings->ffmpegLocation;
 
-    lineEditOutputDirectory = settings.value(QLatin1String("lineEditOutputDirectory")).toString();
-    lineEditFFmpegDirectory = settings.value(QLatin1String("lineEditFFmpegDirectory")).toString();
+#ifdef QT_DEBUG
+    qDebug() << "comboBoxVideoDevice: " << comboBoxVideoDevice;
+    qDebug() << "lineEditVideoFPS: " << lineEditVideoFPS;
+    qDebug() << "mResolution: " << mSettings->mResolution;
 
-    changeShownResolution(settings.value(QLatin1String("comboBoxAudioCodec")).toString());
+    qDebug() << "comboBoxAudioDevice: " << comboBoxAudioDevice;
+    qDebug() << "comboBoxAudioCodec: " << comboBoxAudioCodec;
+    qDebug() << "comboBoxAudioSampling: " << comboBoxAudioSampling;
 
-    settings.endGroup();
-    settings.sync();
+    qDebug() << "lineEditOutputDirectory: " << lineEditOutputDirectory;
+    qDebug() << "lineEditFFmpegDirectory: " << lineEditFFmpegDirectory;
+#endif
+
+    changeShownResolution(mSettings->mResolution);
 
 #ifdef _WIN32
     QFileInfo ffmpegFile(lineEditFFmpegDirectory+"/ffmpeg.exe");

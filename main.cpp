@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
     InitializationDialog initDlg;
     initDlg.exec();
 
-    AvRecorder recorder;
+    AvRecorder recorder(initDlg.getRecordingSettings());
     recorder.show();
 
     QList<CameraThread *> cameras;
