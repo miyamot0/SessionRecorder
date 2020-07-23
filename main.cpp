@@ -94,6 +94,7 @@
 #include "avrecorder.h"
 #include "camerathread.h"
 #include "enums.h"
+#include "recordsettings.h"
 
 //#include <QDebug>
 
