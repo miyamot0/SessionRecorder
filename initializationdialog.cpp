@@ -166,6 +166,26 @@ QString InitializationDialog::getSelectedResolution()
     return ui->comboBoxResolution->currentText();
 }
 
+RecordSettingsData* InitializationDialog::getRecordingSettings() {
+    mSettingsHolder.storeData(
+            ui->lineEditFFmpegDirectory->text(),
+            ui->lineEditOutputDirectory->text(),
+
+            ui->comboBoxVideoDevice->currentText(),
+            ui->lineEditVideoFPS->text(),
+            ui->comboBoxResolution->currentText(),
+
+            ui->comboBoxAudioDevice->currentText(),
+            ui->comboBoxAudioCodec->currentText(),
+            ui->comboBoxAudioSampling->currentText());
+
+    //void RecordSettings::storeData(const QString &ffmpegLocation, const QString &fileSaveLocation,
+    //                               const QString &mVideoDevice, const QString &mVideoFPS, const QString &mResolution,
+    //                               const QString &mAudioDevice, const QString &mAudioEncoding, const QString &mAudioSampling)
+
+    return mSettingsHolder.getData();
+}
+
 ///
 /// \brief InitializationDialog::LoadPreviousOptions
 ///

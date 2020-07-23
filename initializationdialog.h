@@ -37,6 +37,7 @@
 #include <QStandardItemModel>
 #include <QFileDialog>
 
+#include "recordsettings.h"
 #include "enums.h"
 
 namespace Ui {
@@ -51,6 +52,7 @@ public:
     explicit InitializationDialog(QWidget *parent = 0);
     int getSelectedVideoSource();
     QString getSelectedResolution();
+    RecordSettingsData *getRecordingSettings();
 
     ~InitializationDialog();
 
@@ -64,6 +66,8 @@ public slots:
 
 private:
     Ui::InitializationDialog *ui;
+
+    RecordSettings mSettingsHolder;
 
     void LoadPreviousOptions();
     void SaveCurrentOptions();
