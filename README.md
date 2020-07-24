@@ -57,7 +57,7 @@ Want to contribute? Great! Emails or PM's are welcome.
 ------
  - ~~Resolution options~~
  - ~~Windows-specific testing/recording options~~
- - Warn on over-write
+ - ~~Warn on over-write~~
  - Memory for past recording (position, numbering, etc.)
  - Bug testing
 

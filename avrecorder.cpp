@@ -489,11 +489,32 @@ void AvRecorder::toggleRecord()
     qDebug() << QString("AvRecorder::toggleRecord()");
 #endif
 
+    /* Check here if session is something that can be incremented*/
     if (!isSessionAnInt())
     {
         QMessageBox::warning(this, "Error", "You must enter a session number", QMessageBox::Ok);
 
         return;
+    }
+
+    QString mLocation = QString("%1/%2/%3/%4-%5.avi")
+            .arg(lineEditOutputDirectory)
+            .arg(ui->lineEditId->text())
+            .arg(ui->lineEditTx->text())
+            .arg(QString::number(ui->lineEditSession->text().toInt()).rightJustified(4, '0'))
+            .arg(ui->lineEditCond->text());
+
+    if(QFile::exists(mLocation) && audioRecorder->state() == QMediaRecorder::StoppedState)
+    {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this,
+                                      "Overwrite Existing File",
+                                      "Overwrite video?",
+                                      QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::No)
+        {
+            return;
+        }
     }
 
     emit outputDirectory(lineEditOutputDirectory);
