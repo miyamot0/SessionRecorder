@@ -126,6 +126,8 @@ AvRecorder::AvRecorder(RecordSettingsData *recordSettings, QWidget *parent) :
 
     LoadPreviousOptions(recordSettings);
 
+    LoadCurrentOptions();
+
     // <!-- Setup Audio Recorder -->
     audioRecorder = new QAudioRecorder(this);
     probe = new QAudioProbe;
@@ -427,6 +429,8 @@ void AvRecorder::processStarted()
     {
         ui->lineEditSession->setText(QString::number(sessionNumber + 1));
     }
+
+    SaveCurrentOptions();
 }
 
 ///
@@ -590,6 +594,49 @@ void AvRecorder::toggleRecord()
 
         audioRecorder->stop();
     }
+}
+
+///
+/// \brief AvRecorder::SaveCurrentOptions
+///
+void AvRecorder::SaveCurrentOptions()
+{
+    QSettings settings(QSettings::UserScope, QLatin1String("Session Recorder"));
+    settings.beginGroup(QLatin1String("AvRecorder"));
+
+    settings.setValue(QLatin1String("lineEditId"), ui->lineEditId->text());
+    settings.setValue(QLatin1String("lineEditSession"), ui->lineEditSession->text());
+    settings.setValue(QLatin1String("lineEditTx"), ui->lineEditTx->text());
+    settings.setValue(QLatin1String("lineEditCond"), ui->lineEditCond->text());
+
+
+    settings.setValue(QLatin1String("checkBoxCompression"), ui->checkBoxCompression->isChecked());
+    settings.setValue(QLatin1String("checkBoxIncrement"), ui->checkBoxIncrement->isChecked());
+    settings.setValue(QLatin1String("checkBoxNag"), ui->checkBoxNag->isChecked());
+
+    settings.endGroup();
+    settings.sync();
+}
+
+///
+/// \brief AvRecorder::LoadCurrentOptions
+///
+void AvRecorder::LoadCurrentOptions()
+{
+    QSettings settings(QSettings::UserScope, QLatin1String("Session Recorder"));
+    settings.beginGroup(QLatin1String("AvRecorder"));
+
+    ui->lineEditId->setText(settings.value(QLatin1String("lineEditId")).toString());
+    ui->lineEditSession->setText(settings.value(QLatin1String("lineEditSession")).toString());
+    ui->lineEditTx->setText(settings.value(QLatin1String("lineEditTx")).toString());
+    ui->lineEditCond->setText(settings.value(QLatin1String("lineEditCond")).toString());
+
+    ui->checkBoxCompression->setChecked(settings.value(QLatin1String("checkBoxCompression")).toBool());
+    ui->checkBoxIncrement->setChecked(settings.value(QLatin1String("checkBoxIncrement")).toBool());
+    ui->checkBoxNag->setChecked(settings.value(QLatin1String("checkBoxNag")).toBool());
+
+    settings.endGroup();
+    settings.sync();
 }
 
 ///

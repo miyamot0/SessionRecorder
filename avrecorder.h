@@ -163,6 +163,9 @@ private:
 
     bool isSessionAnInt();
 
+    void SaveCurrentOptions();
+    void LoadCurrentOptions();
+
     Ui::AvRecorder *ui;
 
     QProcess *combineStreamProcess;
