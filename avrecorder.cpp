@@ -354,6 +354,7 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
             dirNew.mkpath(".");
         }
 
+        /* If users wishes to use compression, apply here */
         if (ui->checkBoxCompression->isChecked())
         {
             combineStreamProcess->start(QString("%1 -y -i capture.avi -i audio.wav -async 1 -vcodec libx264 -crf 24 %2/%3/%4-%5.avi")
@@ -419,9 +420,9 @@ void AvRecorder::processStarted()
     qDebug() << "processStarted()";
 #endif
 
-
     ui->recordButton->setEnabled(false);
 
+    /* If user wishes, increment session number */
     if (ui->checkBoxIncrement->isChecked())
     {
         ui->lineEditSession->setText(QString::number(sessionNumber + 1));
@@ -503,14 +504,15 @@ void AvRecorder::toggleRecord()
         return;
     }
 
-    QString mLocation = QString("%1/%2/%3/%4-%5.avi")
-            .arg(lineEditOutputDirectory)
-            .arg(ui->lineEditId->text())
-            .arg(ui->lineEditTx->text())
-            .arg(QString::number(ui->lineEditSession->text().toInt()).rightJustified(4, '0'))
-            .arg(ui->lineEditCond->text());
-
-    if(QFile::exists(mLocation) && audioRecorder->state() == QMediaRecorder::StoppedState)
+    /*If nagging the user*/
+    if(ui->checkBoxNag->isChecked() &&
+            QFile::exists(QString("%1/%2/%3/%4-%5.avi")
+                          .arg(lineEditOutputDirectory)
+                          .arg(ui->lineEditId->text())
+                          .arg(ui->lineEditTx->text())
+                          .arg(QString::number(ui->lineEditSession->text().toInt()).rightJustified(4, '0'))
+                          .arg(ui->lineEditCond->text())) &&
+            audioRecorder->state() == QMediaRecorder::StoppedState)
     {
         QMessageBox::StandardButton reply;
         reply = QMessageBox::question(this,
