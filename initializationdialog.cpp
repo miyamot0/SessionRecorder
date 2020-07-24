@@ -28,6 +28,8 @@
 #include "initializationdialog.h"
 #include "ui_initializationdialog.h"
 
+#include <QMessageBox>
+
 InitializationDialog::InitializationDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::InitializationDialog)
@@ -115,6 +117,22 @@ void InitializationDialog::SaveAndValidate(QAbstractButton* clicked)
 {
     Q_UNUSED(clicked);
 
+    if (!QFileInfo (ui->lineEditOutputDirectory->text()).exists() ||
+            !QFileInfo (ui->lineEditOutputDirectory->text()).isWritable()) {
+        QMessageBox errorBox;
+        errorBox.critical(this, "Directory Not Found", "We cannot access the output directory. Reload network file shares?");
+
+        return;
+    }
+
+    if (!QFileInfo (ui->lineEditFFmpegDirectory->text()).exists() ||
+            !QFileInfo (ui->lineEditFFmpegDirectory->text()).isWritable()) {
+        QMessageBox errorBox;
+        errorBox.critical(this, "Directory Not Found", "We cannot access the FFMpeg encoding files. Confirm binaries exist?");
+
+        return;
+    }
+
     SaveCurrentOptions();
 
     QDialog::accept();
@@ -166,6 +184,10 @@ QString InitializationDialog::getSelectedResolution()
     return ui->comboBoxResolution->currentText();
 }
 
+///
+/// \brief InitializationDialog::getRecordingSettings
+/// \return
+///
 RecordSettingsData* InitializationDialog::getRecordingSettings() {
     mSettingsHolder.storeData(
             ui->lineEditFFmpegDirectory->text(),
@@ -178,10 +200,6 @@ RecordSettingsData* InitializationDialog::getRecordingSettings() {
             ui->comboBoxAudioDevice->currentText(),
             ui->comboBoxAudioCodec->currentText(),
             ui->comboBoxAudioSampling->currentText());
-
-    //void RecordSettings::storeData(const QString &ffmpegLocation, const QString &fileSaveLocation,
-    //                               const QString &mVideoDevice, const QString &mVideoFPS, const QString &mResolution,
-    //                               const QString &mAudioDevice, const QString &mAudioEncoding, const QString &mAudioSampling)
 
     return mSettingsHolder.getData();
 }
