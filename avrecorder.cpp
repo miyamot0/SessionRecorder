@@ -489,6 +489,12 @@ void AvRecorder::toggleRecord()
     qDebug() << QString("AvRecorder::toggleRecord()");
 #endif
 
+    /* Cast all to upper */
+    ui->lineEditId->setText(ui->lineEditId->text().toUpper());
+    ui->lineEditTx->setText(ui->lineEditTx->text().toUpper());
+    ui->lineEditCond->setText(ui->lineEditCond->text().toUpper());
+    qApp->processEvents();
+
     /* Check here if session is something that can be incremented*/
     if (!isSessionAnInt())
     {
