@@ -44,6 +44,16 @@ win32 {
     INCLUDEPATH += -L$$OPENCVDIR\x64\vc14\lib
 
     LIBS += -lopencv_core2413 -lopencv_highgui2413 -lopencv_imgproc2413
+
+    win32:RC_ICONS += SNS.ico
+
+    CONFIG(debug, debug|release) {
+        DESTDIR = $$OUT_PWD/build/debug
+    } else {
+        DESTDIR = $$OUT_PWD/build/release
+    }
+
+    SR_FILES.path = $$DESTDIR
 }
 
 SOURCES += \
@@ -70,4 +80,5 @@ DISTFILES += \
     COPYING \
     LICENSE_Meeting-Recorder \
     LICENSE_Qt \
-    LICENSE_Qt-Examples
+    LICENSE_Qt-Examples \
+    SNS.ico

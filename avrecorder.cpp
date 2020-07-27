@@ -327,7 +327,7 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
     QString program = QString(lineEditFFmpegDirectory + "/ffmpeg");
 
     QString id = ui->lineEditId->text();
-    QString sessNumber = QString::number(ui->lineEditSession->text().toInt()).rightJustified(4, '0');
+    QString sessNumber = QString::number(ui->lineEditSession->text().toInt());
 
     QDir dirNew(QString("%1/%2/%3").arg(lineEditOutputDirectory)
              .arg(id)

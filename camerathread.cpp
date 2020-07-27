@@ -174,7 +174,7 @@ void CameraThread::updateSessionConditions(int index, QString value)
 
         break;
     case 1:
-        winSession = value;
+        winSession = value.rightJustified(4, '0');
 
         break;
     case 2:
