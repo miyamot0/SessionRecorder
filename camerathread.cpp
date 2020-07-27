@@ -48,7 +48,11 @@
 
 ****************************************************************************/
 
+#ifdef QT_DEBUG
 #include <QDebug>
+#endif
+
+#include <QDir>
 #include <QDateTime>
 #include <QTextStream>
 #include <QLinkedList>
@@ -94,6 +98,8 @@ CameraThread::CameraThread(int i) : idx(i), is_active(false), was_active(false)
 
     settings.endGroup();
     settings.sync();
+
+    tempWriteLocation = QDir::currentPath();
 }
 
 ///
@@ -150,6 +156,8 @@ CameraThread::CameraThread(int i, QString wxh) : idx(i), is_active(false), was_a
 
     settings.endGroup();
     settings.sync();
+
+    tempWriteLocation = QDir::currentPath();
 }
 
 ///
@@ -263,7 +271,6 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
     emit cameraInfo(idx, input_size.width, input_size.height);
 
     outdir = "";
-    filename = QString("capture.avi");
 
     record_video = false;
 
@@ -359,7 +366,6 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
 
               rectangle(frame,
                         Point(2,frame.rows-22),
-                        //Point(250, frame.rows-8),
                         Point(datetime.toString().toStdString().length() * 10, frame.rows-8),
                         blackColor,
                         CV_FILLED);
@@ -514,22 +520,20 @@ void CameraThread::onStateChanged(QMediaRecorder::State state)
 
         if (!video.isOpened())
         {
-
+#ifdef QT_DEBUG
             qDebug() << QString("CameraThread::onStateChanged(): initializing "
-                    "VideoWriter for camera %1; Location %2").arg(idx).arg(outdir+filename);
+                    "VideoWriter for camera %1; Location %2").arg(idx).arg(tempWriteLocation + "/capture.avi");
+#endif
 
-            qDebug() << fourcc;
-
-            qDebug() << framerate;
-
-            qDebug() << output_size.width;
-
-            video.open(QString(outdir+filename).toStdString(),
+            video.open(QString(tempWriteLocation + "/capture.avi").toStdString(),
                        fourcc,
                        framerate,
                        (output_size.width ? output_size : input_size));
 
+#ifdef QT_DEBUG
             qDebug() << "Opened window";
+#endif
+
         }
 
         if (!video.isOpened())
@@ -538,7 +542,9 @@ void CameraThread::onStateChanged(QMediaRecorder::State state)
         }
         else
         {
+#ifdef QT_DEBUG
             qDebug() << QString("CameraThread::onStateChanged(): initialization ready for camera %1").arg(idx);
+#endif
 
             record_video = true;
         }
@@ -590,7 +596,9 @@ QImage CameraThread::Mat2QImage(cv::Mat const& src)
 ///
 void CameraThread::setCameraOutput(QString wxh)
 {
+#ifdef QT_DEBUG
     qDebug() << "CameraThread::setCameraOutput(): " << wxh;
+#endif
 
     if (wxh == "Original")
     {

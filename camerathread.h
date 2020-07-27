@@ -116,7 +116,6 @@ private:
     cv::Size window_size;
 
     QString outdir;
-    QString filename;
 
     bool stopLoop;
 
@@ -141,6 +140,8 @@ private:
     Scalar blackColor = Scalar(0, 0, 0);
 
     int framerate = 15;
+
+    QString tempWriteLocation;
 };
 
 #endif // CAMERATHREAD_H

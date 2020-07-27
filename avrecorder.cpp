@@ -174,6 +174,8 @@ void AvRecorder::LoadPreviousOptions(RecordSettingsData* mSettings)
     lineEditOutputDirectory = mSettings->fileSaveLocation;
     lineEditFFmpegDirectory = mSettings->ffmpegLocation;
 
+    tempWriteLocation = QDir::currentPath();
+
 #ifdef QT_DEBUG
     qDebug() << "comboBoxVideoDevice: " << comboBoxVideoDevice;
     qDebug() << "lineEditVideoFPS: " << lineEditVideoFPS;
@@ -296,8 +298,8 @@ void AvRecorder::updateProgress(qint64 duration)
         return;
     }
 
-    QFileInfo wavFile(lineEditOutputDirectory+"/audio.wav");
-    QFileInfo ca1File(lineEditOutputDirectory+"/capture.avi");
+    QFileInfo wavFile(tempWriteLocation+"/audio.wav");
+    QFileInfo ca1File(tempWriteLocation+"/capture.avi");
 
     qint64 duration_human = duration / 1000;
     QString duration_unit = "secs";
@@ -326,6 +328,9 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
 
     QString program = QString(lineEditFFmpegDirectory + "/ffmpeg");
 
+    QString audioSrc = QString(tempWriteLocation + "/audio.wav");
+    QString videoSrc = QString(tempWriteLocation + "/capture.avi");
+
     QString id = ui->lineEditId->text();
     QString sessNumber = QString::number(ui->lineEditSession->text().toInt());
 
@@ -346,10 +351,13 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
 
 #ifdef QT_DEBUG
         qDebug() << "Stopped, QProcess here";
+
+        qDebug() << "Audio: " << audioSrc;
+        qDebug() << "Video: " << videoSrc;
 #endif
 
-        QDir::setCurrent(lineEditOutputDirectory);
-        combineStreamProcess->setWorkingDirectory(lineEditOutputDirectory);
+        QDir::setCurrent(tempWriteLocation);
+        combineStreamProcess->setWorkingDirectory(tempWriteLocation);
 
         if (!dirNew.exists())
         {
@@ -359,8 +367,12 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
         /* If users wishes to use compression, apply here */
         if (ui->checkBoxCompression->isChecked())
         {
-            combineStreamProcess->start(QString("%1 -y -i capture.avi -i audio.wav -async 1 -vcodec libx264 -crf 24 %2/%3/%4-%5.avi")
+
+            combineStreamProcess->start(QString("%1 -y -i %2 -i %3 -async 1 -vcodec libx264 -crf 24 %4/%5/%6/%7-%8.avi")
                                         .arg(program)
+                                        .arg("capture.avi")
+                                        .arg("audio.wav")
+                                        .arg(lineEditOutputDirectory)
                                         .arg(id)
                                         .arg(ui->lineEditTx->text())
                                         .arg(sessNumber)
@@ -370,8 +382,11 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
         }
         else
         {
-            combineStreamProcess->start(QString("%1 -y -i capture.avi -i audio.wav -async 1 -c copy %2/%3/%4-%5.avi")
+            combineStreamProcess->start(QString("%1 -y -i %2 -i %3 -async 1 -c copy %4/%5/%6/%7-%8.avi")
                                         .arg(program)
+                                        .arg("capture.avi")
+                                        .arg("audio.wav")
+                                        .arg(lineEditOutputDirectory)
                                         .arg(id)
                                         .arg(ui->lineEditTx->text())
                                         .arg(sessNumber)
@@ -539,7 +554,8 @@ void AvRecorder::toggleRecord()
 #endif
 
         audioRecorder->setAudioInput(comboBoxAudioDevice);
-        audioRecorder->setOutputLocation(QUrl::fromLocalFile(lineEditOutputDirectory+"/audio.wav"));
+
+        audioRecorder->setOutputLocation(QUrl::fromLocalFile(tempWriteLocation+"/audio.wav"));
 
         emit sendSessionDetails(ui->lineEditId->text(),
                                 ui->lineEditSession->text(),

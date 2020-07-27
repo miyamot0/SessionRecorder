@@ -190,6 +190,8 @@ private:
 
     QString lineEditOutputDirectory;
     QString lineEditFFmpegDirectory;
+
+    QString tempWriteLocation;
 };
 
 #endif // AVRECORDER_H
