@@ -24,7 +24,14 @@ macx {
      OPENCVDIR = /opt/local
      INCLUDEPATH += $$OPENCVDIR/include
      LIBS += -L$$OPENCVDIR/lib
-     LIBS += -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_videoio
+
+    CONFIG(debug, debug|release) {
+        DESTDIR = $$OUT_PWD/build/debug
+        LIBS += -lopencv_cored -lopencv_highguid -lopencv_imgprocd -lopencv_videoiod
+    } else {
+        DESTDIR = $$OUT_PWD/build/release
+        LIBS += -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_videoio
+    }
 }
 
 win32 {
