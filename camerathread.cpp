@@ -150,7 +150,6 @@ CameraThread::CameraThread(int i, QString wxh) : idx(i), is_active(false), was_a
 
     settings.endGroup();
     settings.sync();
-
 }
 
 ///
@@ -281,13 +280,13 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
     stopLoop = false;
     is_active = true;
 
-    topRect1 = Point(2, 8);
-    topRect2 = Point(180, 8 + (4 * 14));
+    topRect1 = Point(2, 4);
+    topRect2 = Point(180, 4 + (4 * 14));
 
-    topText1 = Point(10, 8 + 14 - 2);
-    topText2 = Point(10, 8 + 28 - 2);
-    topText3 = Point(10, 8 + 42 - 2);
-    topText4 = Point(10, 8 + 56 - 2);
+    topText1 = Point(8, 4 + 14 - 2);
+    topText2 = Point(8, 4 + 28 - 2);
+    topText3 = Point(8, 4 + 42 - 2);
+    topText4 = Point(8, 4 + 56 - 2);
 
     QDateTime datetime;
     for (;;)
@@ -360,7 +359,8 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
 
               rectangle(frame,
                         Point(2,frame.rows-22),
-                        Point(300, frame.rows-8),
+                        //Point(250, frame.rows-8),
+                        Point(datetime.toString().toStdString().length() * 10, frame.rows-8),
                         blackColor,
                         CV_FILLED);
 
