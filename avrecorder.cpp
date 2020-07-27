@@ -631,6 +631,11 @@ void AvRecorder::LoadCurrentOptions()
     ui->lineEditTx->setText(settings.value(QLatin1String("lineEditTx")).toString());
     ui->lineEditCond->setText(settings.value(QLatin1String("lineEditCond")).toString());
 
+    emit sendSessionDetails(ui->lineEditId->text(),
+                            ui->lineEditSession->text(),
+                            ui->lineEditTx->text(),
+                            ui->lineEditCond->text());
+
     ui->checkBoxCompression->setChecked(settings.value(QLatin1String("checkBoxCompression")).toBool());
     ui->checkBoxIncrement->setChecked(settings.value(QLatin1String("checkBoxIncrement")).toBool());
     ui->checkBoxNag->setChecked(settings.value(QLatin1String("checkBoxNag")).toBool());

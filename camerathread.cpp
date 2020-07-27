@@ -52,6 +52,7 @@
 #include <QDateTime>
 #include <QTextStream>
 #include <QLinkedList>
+#include <QSettings>
 
 #include "boost/date_time/posix_time/posix_time.hpp"
 
@@ -82,6 +83,17 @@ CameraThread::CameraThread(int i) : idx(i), is_active(false), was_active(false)
 #ifdef QT_DEBUG
     qDebug() << QString("Width: %1, Height: %2").arg(window_size.width).arg(window_size.height);
 #endif
+
+    QSettings settings(QSettings::UserScope, QLatin1String("Session Recorder"));
+    settings.beginGroup(QLatin1String("AvRecorder"));
+
+    winId =         settings.value(QLatin1String("lineEditId")).toString();
+    winSession =    settings.value(QLatin1String("lineEditSession")).toString().rightJustified(4, '0');
+    winTreatment =  settings.value(QLatin1String("lineEditTx")).toString();
+    winCondition =  settings.value(QLatin1String("lineEditCond")).toString();
+
+    settings.endGroup();
+    settings.sync();
 }
 
 ///
@@ -127,6 +139,18 @@ CameraThread::CameraThread(int i, QString wxh) : idx(i), is_active(false), was_a
 #ifdef QT_DEBUG
     qDebug() << QString("Width: %1, Height: %2").arg(window_size.width).arg(window_size.height);
 #endif
+
+    QSettings settings(QSettings::UserScope, QLatin1String("Session Recorder"));
+    settings.beginGroup(QLatin1String("AvRecorder"));
+
+    winId =         settings.value(QLatin1String("lineEditId")).toString();
+    winSession =    settings.value(QLatin1String("lineEditSession")).toString().rightJustified(4, '0');
+    winTreatment =  settings.value(QLatin1String("lineEditTx")).toString();
+    winCondition =  settings.value(QLatin1String("lineEditCond")).toString();
+
+    settings.endGroup();
+    settings.sync();
+
 }
 
 ///

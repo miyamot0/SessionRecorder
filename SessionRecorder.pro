@@ -43,17 +43,15 @@ win32 {
     INCLUDEPATH += -L$$OPENCVDIR\x64\vc14\bin
     INCLUDEPATH += -L$$OPENCVDIR\x64\vc14\lib
 
-    LIBS += -lopencv_core2413 -lopencv_highgui2413 -lopencv_imgproc2413
-
     win32:RC_ICONS += SNS.ico
 
     CONFIG(debug, debug|release) {
         DESTDIR = $$OUT_PWD/build/debug
+        LIBS += -lopencv_core2413d -lopencv_highgui2413d -lopencv_imgproc2413d
     } else {
         DESTDIR = $$OUT_PWD/build/release
+        LIBS += -lopencv_core2413 -lopencv_highgui2413 -lopencv_imgproc2413
     }
-
-    SR_FILES.path = $$DESTDIR
 }
 
 SOURCES += \
