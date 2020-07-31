@@ -57,6 +57,7 @@
 #include <QTextStream>
 #include <QLinkedList>
 #include <QSettings>
+#include <QStandardPaths>
 
 #include "boost/date_time/posix_time/posix_time.hpp"
 
@@ -99,7 +100,7 @@ CameraThread::CameraThread(int i) : idx(i), is_active(false), was_active(false)
     settings.endGroup();
     settings.sync();
 
-    tempWriteLocation = QDir::currentPath();
+    tempWriteLocation = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
 }
 
 ///
@@ -157,7 +158,7 @@ CameraThread::CameraThread(int i, QString wxh) : idx(i), is_active(false), was_a
     settings.endGroup();
     settings.sync();
 
-    tempWriteLocation = QDir::currentPath();
+    tempWriteLocation = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
 }
 
 ///
@@ -274,7 +275,12 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
 
     record_video = false;
 
+    qDebug() << VIDEOSTRING;
+
+    //fourcc = -1;
     fourcc = CV_FOURCC('m','p','4','v');
+    //fourcc = CV_FOURCC('M','J','P','G');
+    //fourcc = CV_FOURCC('H','2','6','4');
 
     output_size = Size(input_size.width, input_size.height);
 
@@ -522,13 +528,18 @@ void CameraThread::onStateChanged(QMediaRecorder::State state)
         {
 #ifdef QT_DEBUG
             qDebug() << QString("CameraThread::onStateChanged(): initializing "
-                    "VideoWriter for camera %1; Location %2").arg(idx).arg(tempWriteLocation + "/capture.avi");
+                    "VideoWriter for camera %1; Location %2").arg(idx).arg(tempWriteLocation + "/" + VIDEOSTRING);
+
+            qDebug() << "FourCC: " << fourcc;
 #endif
 
-            video.open(QString(tempWriteLocation + "/capture.avi").toStdString(),
+
+
+            video.open(QString(tempWriteLocation + "/" + VIDEOSTRING).toStdString(),
                        fourcc,
                        framerate,
-                       (output_size.width ? output_size : input_size));
+                       (output_size.width ? output_size : input_size),
+                       true);
 
 #ifdef QT_DEBUG
             qDebug() << "Opened window";

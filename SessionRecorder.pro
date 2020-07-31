@@ -13,6 +13,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
 
 DEFINES += QT_DEPRECATED_WARNINGS
+DEFINES += VIDEOSTRING='\\"video.avi\\"'
+DEFINES += VIDEOEXT='\\"avi\\"'
 
 macx {
      message(Platform: Mac OS X)

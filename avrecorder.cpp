@@ -95,6 +95,7 @@
 #include <QHostInfo>
 #include <QMessageBox>
 #include <QShortcut>
+#include <QStandardPaths>
 #include <QTimer>
 
 #ifdef QT_DEBUG
@@ -174,7 +175,7 @@ void AvRecorder::LoadPreviousOptions(RecordSettingsData* mSettings)
     lineEditOutputDirectory = mSettings->fileSaveLocation;
     lineEditFFmpegDirectory = mSettings->ffmpegLocation;
 
-    tempWriteLocation = QDir::currentPath();
+    tempWriteLocation = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
 
 #ifdef QT_DEBUG
     qDebug() << "comboBoxVideoDevice: " << comboBoxVideoDevice;
@@ -299,7 +300,7 @@ void AvRecorder::updateProgress(qint64 duration)
     }
 
     QFileInfo wavFile(tempWriteLocation+"/audio.wav");
-    QFileInfo ca1File(tempWriteLocation+"/capture.avi");
+    QFileInfo ca1File(tempWriteLocation+"/" + VIDEOSTRING);
 
     qint64 duration_human = duration / 1000;
     QString duration_unit = "secs";
@@ -324,12 +325,20 @@ void AvRecorder::updateProgress(qint64 duration)
 ///
 void AvRecorder::updateStatus(QMediaRecorder::Status status)
 {
+
     QString statusMessage;
 
     QString program = QString(lineEditFFmpegDirectory + "/ffmpeg");
 
     QString audioSrc = QString(tempWriteLocation + "/audio.wav");
-    QString videoSrc = QString(tempWriteLocation + "/capture.avi");
+    QString videoSrc = QString(tempWriteLocation + "/" + VIDEOSTRING);
+
+#ifdef QT_DEBUG
+    qDebug() << "AvRecorder::updateStatus(QMediaRecorder::Status status)";
+    qDebug() << audioSrc;
+    qDebug() << videoSrc;
+    qDebug() << program;
+#endif
 
     QString id = ui->lineEditId->text();
     QString sessNumber = QString::number(ui->lineEditSession->text().toInt());
@@ -368,29 +377,57 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
         if (ui->checkBoxCompression->isChecked())
         {
 
-            combineStreamProcess->start(QString("%1 -y -i %2 -i %3 -async 1 -vcodec libx264 -crf 24 %4/%5/%6/%7-%8.avi")
+#ifdef QT_DEBUG
+        qDebug() << QString("%1 -y -i %2 -i %3 -async 1 -vcodec libx264 -crf 24 %4/%5/%6/%7-%8.%9")
+                    .arg(program)
+                    .arg(VIDEOSTRING)
+                    .arg("audio.wav")
+                    .arg(lineEditOutputDirectory)
+                    .arg(id)
+                    .arg(ui->lineEditTx->text())
+                    .arg(sessNumber)
+                    .arg(ui->lineEditCond->text())
+                    .arg(VIDEOEXT);
+#endif
+
+            combineStreamProcess->start(QString("%1 -y -i %2 -i %3 -async 1 -vcodec libx264 -crf 24 %4/%5/%6/%7-%8.%9")
                                         .arg(program)
-                                        .arg("capture.avi")
+                                        .arg(VIDEOSTRING)
                                         .arg("audio.wav")
                                         .arg(lineEditOutputDirectory)
                                         .arg(id)
                                         .arg(ui->lineEditTx->text())
                                         .arg(sessNumber)
-                                        .arg(ui->lineEditCond->text()));
+                                        .arg(ui->lineEditCond->text())
+                                        .arg(VIDEOEXT));
 
             statusMessage = tr("Converting files...");
         }
         else
         {
-            combineStreamProcess->start(QString("%1 -y -i %2 -i %3 -async 1 -c copy %4/%5/%6/%7-%8.avi")
+#ifdef QT_DEBUG
+        qDebug() << QString("%1 -y -i %2 -i %3 -async 1 -c copy %4/%5/%6/%7-%8.%9")
+                    .arg(program)
+                    .arg(VIDEOSTRING)
+                    .arg("audio.wav")
+                    .arg(lineEditOutputDirectory)
+                    .arg(id)
+                    .arg(ui->lineEditTx->text())
+                    .arg(sessNumber)
+                    .arg(ui->lineEditCond->text())
+                    .arg(VIDEOEXT);
+#endif
+
+            combineStreamProcess->start(QString("%1 -y -i %2 -i %3 -async 1 -c copy %4/%5/%6/%7-%8.%9")
                                         .arg(program)
-                                        .arg("capture.avi")
+                                        .arg(VIDEOSTRING)
                                         .arg("audio.wav")
                                         .arg(lineEditOutputDirectory)
                                         .arg(id)
                                         .arg(ui->lineEditTx->text())
                                         .arg(sessNumber)
-                                        .arg(ui->lineEditCond->text()));
+                                        .arg(ui->lineEditCond->text())
+                                        .arg(VIDEOEXT));
 
             statusMessage = tr("Combining files...");
         }
@@ -525,7 +562,7 @@ void AvRecorder::toggleRecord()
 
     /*If nagging the user*/
     if(ui->checkBoxNag->isChecked() &&
-            QFile::exists(QString("%1/%2/%3/%4-%5.avi")
+            QFile::exists(QString("%1/%2/%3/%4-%5.mp4")
                           .arg(lineEditOutputDirectory)
                           .arg(ui->lineEditId->text())
                           .arg(ui->lineEditTx->text())
