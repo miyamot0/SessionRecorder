@@ -107,6 +107,8 @@ InitializationDialog::InitializationDialog(QWidget *parent) :
     ui->lineEditFFmpegDirectory->setText("/usr/local/bin");
     ui->lineEditFFmpegDirectory->setEnabled(false);
 #endif
+
+    setWindowTitle(QString("Session Recorder v" + QString("%1.%2.%3").arg(VERSION_MAJOR).arg(VERSION_MINOR).arg(VERSION_BUILD)));
 }
 
 ///

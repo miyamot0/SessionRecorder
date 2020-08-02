@@ -96,6 +96,7 @@
 #include <QMessageBox>
 #include <QShortcut>
 #include <QStandardPaths>
+#include <QString>
 #include <QTimer>
 
 #ifdef QT_DEBUG
@@ -128,6 +129,8 @@ AvRecorder::AvRecorder(RecordSettingsData *recordSettings, QWidget *parent) :
     LoadPreviousOptions(recordSettings);
 
     LoadCurrentOptions();
+
+    setWindowTitle(QString("Session Recorder v" + QString("%1.%2.%3").arg(VERSION_MAJOR).arg(VERSION_MINOR).arg(VERSION_BUILD)));
 
     // <!-- Setup Audio Recorder -->
     audioRecorder = new QAudioRecorder(this);
