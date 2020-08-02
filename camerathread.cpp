@@ -244,6 +244,9 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
     // initialize capture on default source
     VideoCapture capture(idx);
 
+    capture.set(CV_CAP_PROP_FRAME_WIDTH,  output_size.width  ? output_size.width  : input_size.width);
+    capture.set(CV_CAP_PROP_FRAME_HEIGHT, output_size.height ? output_size.height : input_size.height);
+
     if (!capture.isOpened())
     {
         emit errorMessage(QString("Warning: Failed to initialize camera %1.").arg(idx));
@@ -252,11 +255,11 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
 
         return;
     }
-    else {
 #ifdef QT_DEBUG
+    else {
         qDebug() << "Camera connected!";
-#endif
     }
+#endif
 
     emit cameraConnected(true);
 
