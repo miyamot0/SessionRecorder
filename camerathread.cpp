@@ -275,12 +275,11 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
 
     record_video = false;
 
+#ifdef QT_DEBUG
     qDebug() << VIDEOSTRING;
+#endif
 
-    //fourcc = -1;
     fourcc = CV_FOURCC('m','p','4','v');
-    //fourcc = CV_FOURCC('M','J','P','G');
-    //fourcc = CV_FOURCC('H','2','6','4');
 
     output_size = Size(input_size.width, input_size.height);
 
@@ -372,7 +371,7 @@ void CameraThread::run() { //Q_DECL_OVERRIDE
 
               rectangle(frame,
                         Point(2,frame.rows-22),
-                        Point(datetime.toString().toStdString().length() * 10, frame.rows-8),
+                        Point(static_cast<int>(datetime.toString().toStdString().length()) * 10, frame.rows-8),
                         blackColor,
                         CV_FILLED);
 
@@ -482,8 +481,8 @@ void CameraThread::resizeAR(Mat &frame, Size osize)
     }
 
     Mat newframe = Mat::zeros(osize, CV_8UC3);
-    size_t roi_width = size_t(f_aspect_ratio*osize.height);
-    size_t roi_displacement = (osize.width-roi_width)/2;
+    int roi_width = int(f_aspect_ratio*osize.height);
+    int roi_displacement = int(osize.width-roi_width)/2;
     Mat roi(newframe, Rect(roi_displacement, 0, roi_width, osize.height));
     resize(frame, roi, roi.size());
     newframe.copyTo(frame);
@@ -591,7 +590,7 @@ QImage CameraThread::Mat2QImage(cv::Mat const& src)
      QImage dest((const uchar *) temp.data,
                  temp.cols,
                  temp.rows,
-                 temp.step,
+                 static_cast<int>(temp.step),
                  QImage::Format_RGB888);
 
      dest.bits(); // enforce deep copy, see documentation
