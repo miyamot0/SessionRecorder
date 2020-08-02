@@ -449,7 +449,9 @@ void AvRecorder::updateStatus(QMediaRecorder::Status status)
     }
 
     if (audioRecorder->error() == QMediaRecorder::NoError)
+    {
         ui->statusbar->showMessage(statusMessage);
+    }
 }
 
 ///
@@ -505,9 +507,10 @@ void AvRecorder::encodingFinished()
 ///
 void AvRecorder::processError(QProcess::ProcessError err)
 {
-
 #ifdef QT_DEBUG
     qDebug() << err;
+#else
+    Q_UNUSED(err);
 #endif
 
 }
